@@ -46,8 +46,7 @@ describe("MeScreen", () => {
     await user.click(screen.getByRole("button", { name: /学习计划设置/ }));
     expect(push).toHaveBeenCalledWith("/settings");
 
-    await user.click(screen.getByRole("button", { name: /升级 PRO 会员/ }));
-    expect(push).toHaveBeenCalledWith("/pro");
+    expect(screen.getByRole("button", { name: /升级 PRO 会员/ })).toHaveAttribute("href", "/pro");
 
     await user.click(screen.getByRole("button", { name: "今日学习" }));
     expect(push).toHaveBeenCalledWith("/dashboard");

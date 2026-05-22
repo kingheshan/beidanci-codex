@@ -285,17 +285,21 @@ test("Gate 14 PRO paywall opens from profile and activates a subscription", asyn
   await page.goto("/me", { waitUntil: "domcontentloaded" });
 
   await page.getByRole("button", { name: /升级 PRO 会员/ }).click();
-  await expect(page).toHaveURL(/\/pro$/);
+  await expect(page).toHaveURL(/\/pro$/, { timeout: 15_000 });
   await expect(page.getByRole("heading", { name: "升级 PRO" })).toBeVisible();
   await expect(page.getByText("AI 每日故事")).toBeVisible();
   await expect(page.getByRole("button", { name: /年会员/ })).toHaveAttribute("aria-pressed", "true");
 
   await page.getByRole("button", { name: /终身会员/ }).click();
   await expect(page.getByRole("button", { name: "立即升级 PRO · ¥488" })).toBeVisible();
+  const checkoutResponse = page.waitForResponse((response) => response.url().includes("/api/v1/billing/checkout") && response.request().method() === "POST" && response.status() === 200, {
+    timeout: 15_000
+  });
   await page.getByRole("button", { name: "立即升级 PRO · ¥488" }).click();
+  await checkoutResponse;
 
-  await expect(page.getByText("升级成功，已解锁终身会员")).toBeVisible();
-  await expect(page).toHaveURL(/\/me$/);
+  await expect(page.getByText("升级成功，已解锁终身会员")).toBeVisible({ timeout: 10_000 });
+  await expect(page).toHaveURL(/\/me$/, { timeout: 10_000 });
 
   const subscription = await page.evaluate(() => {
     const raw = localStorage.getItem("aishang-vocab-store");

@@ -108,22 +108,24 @@ describe("app store onboarding state", () => {
     expect(useAppStore.getState().auth).toBeNull();
   });
 
-  it("activates and persists a mock PRO subscription", () => {
+  it("activates and persists a PRO subscription", () => {
     expect(useAppStore.getState().subscription.isPro).toBe(false);
 
-    useAppStore.getState().activatePro("yearly");
+    useAppStore.getState().activatePro("yearly", "2026-05-22T12:00:00.000Z", "bill_test");
 
     expect(useAppStore.getState().subscription).toMatchObject({
       isPro: true,
-      planId: "yearly"
+      planId: "yearly",
+      sourceOrderId: "bill_test"
     });
-    expect(useAppStore.getState().subscription.startedAt).toEqual(expect.any(String));
+    expect(useAppStore.getState().subscription.startedAt).toBe("2026-05-22T12:00:00.000Z");
 
     const raw = localStorage.getItem("aishang-vocab-store");
     expect(raw).not.toBeNull();
     expect(JSON.parse(raw ?? "{}").state.subscription).toMatchObject({
       isPro: true,
-      planId: "yearly"
+      planId: "yearly",
+      sourceOrderId: "bill_test"
     });
   });
 });

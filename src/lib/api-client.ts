@@ -7,7 +7,7 @@ import { getMockOcrResult, type OcrResult } from "./ocr-data";
 import { getOnboardingConfig, type OnboardingConfig } from "./onboarding-config";
 import { PARENT_REPORT, type ParentReport } from "./parent-report-data";
 import { getProductConfig, type ProductConfig } from "./product-config";
-import { PRO_PLANS, type ProPlan } from "./pro-data";
+import { findProPlan, PRO_PLANS, type ProCheckoutInput, type ProCheckoutResult, type ProPlan, type ProSubscription } from "./pro-data";
 import { REVIEW_QUEUE, type ReviewQueueItem } from "./review-data";
 import { DAILY_STORY, type DailyStory } from "./story-data";
 import { getStudyConfig, LESSONS, STUDY_MODES, USER_PROGRESS, type Lesson, type StudyConfig, type StudyMode, type StudyModeId } from "./study-config";
@@ -100,6 +100,8 @@ export type ApiClient = {
   getParentReport: () => Promise<ParentReport>;
   submitAnswer: (input: SubmitAnswerInput) => Promise<SubmitAnswerResult>;
   getPlans: () => Promise<ProPlan[]>;
+  createProCheckout: (input: ProCheckoutInput) => Promise<ProCheckoutResult>;
+  getProSubscription: () => Promise<ProSubscription>;
   getDailyStory: (input?: DailyStoryInput) => Promise<DailyStory>;
   getExample: (wordId: string) => Promise<WordExample>;
   getMemoryMap: (wordId: string) => Promise<MemoryMapModel>;
@@ -194,6 +196,39 @@ function cookieBackedSession(session: AuthSession): AuthSession {
   };
 }
 
+function demoProCheckout(input: ProCheckoutInput): ProCheckoutResult {
+  const plan = findProPlan(input.planId);
+  const now = new Date().toISOString();
+  const orderId = `bill_mock_${plan.id}`;
+
+  return {
+    order: {
+      id: orderId,
+      userId: "u_xiaomin",
+      customerName: "小敏",
+      planId: plan.id,
+      planName: plan.name,
+      amountCny: plan.price,
+      channel: input.channel ?? "demo",
+      status: "paid",
+      createdAt: now,
+      paidAt: now
+    },
+    subscription: {
+      isPro: true,
+      planId: plan.id,
+      startedAt: now,
+      expiresAt: plan.id === "lifetime" ? null : now,
+      sourceOrderId: orderId
+    },
+    payment: {
+      provider: "demo",
+      status: "paid",
+      message: "演示环境已自动完成支付"
+    }
+  };
+}
+
 export function createMockApiClient(options: MockApiClientOptions = {}): ApiClient {
   const config: Required<MockApiClientOptions> = {
     delayMs: options.delayMs ?? 180,
@@ -235,6 +270,15 @@ export function createMockApiClient(options: MockApiClientOptions = {}): ApiClie
     getParentReport: () => resolveMock(config, () => PARENT_REPORT),
     submitAnswer: (input) => resolveMock(config, () => answerResult(input.correct)),
     getPlans: () => resolveMock(config, () => PRO_PLANS),
+    createProCheckout: (input) => resolveMock(config, () => demoProCheckout(input)),
+    getProSubscription: () =>
+      resolveMock(config, () => ({
+        isPro: false,
+        planId: null,
+        startedAt: null,
+        expiresAt: null,
+        sourceOrderId: null
+      })),
     getDailyStory: () => resolveMock(config, () => DAILY_STORY),
     getExample: (wordId) =>
       resolveMock(config, async () => {
@@ -372,6 +416,8 @@ export function createFetchApiClient({ baseUrl = "/api/v1", fetcher = fetch }: F
     getParentReport: () => request<ParentReport>("/parent/report"),
     submitAnswer: (input) => request<SubmitAnswerResult>("/answers", { method: "POST", body: JSON.stringify(input) }),
     getPlans: () => request<ProPlan[]>("/billing/plans"),
+    createProCheckout: (input) => request<ProCheckoutResult>("/billing/checkout", { method: "POST", body: JSON.stringify(input) }),
+    getProSubscription: () => request<ProSubscription>("/billing/subscription"),
     getDailyStory: (input) => request<DailyStory>(getDailyStoryPath(input)),
     getExample: (wordId) => request<WordExample>(`/ai/example/${encodeURIComponent(wordId)}`),
     getMemoryMap: (wordId) => request<MemoryMapModel>(`/ai/memory-map/${encodeURIComponent(wordId)}`),

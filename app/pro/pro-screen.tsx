@@ -6,10 +6,15 @@ import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, SparkleIcon } from "@/components/icons";
 import { CTA, GemPill, StreakChip, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
+import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
 import { formatExperienceTemplate, type ExperienceConfig } from "@/lib/experience-config";
 import { findProPlan, PRO_FEATURES, PRO_PLANS, type ProPlan, type ProPlanId } from "@/lib/pro-data";
 import { useExperienceConfig } from "@/lib/use-remote-config";
 import { useAppStore } from "@/store/app-store";
+
+type ProScreenProps = {
+  apiClient?: Pick<ApiClient, "createProCheckout">;
+};
 
 function SparkleField() {
   return (
@@ -122,12 +127,14 @@ function PlanPanel({
   picked,
   selectedPlan,
   config,
+  loading,
   onPick,
   onPurchase
 }: {
   picked: ProPlanId;
   selectedPlan: ProPlan;
   config: ExperienceConfig["pro"];
+  loading: boolean;
   onPick: (planId: ProPlanId) => void;
   onPurchase: () => void;
 }) {
@@ -147,8 +154,8 @@ function PlanPanel({
           <PlanButton key={plan.id} plan={plan} picked={picked === plan.id} onPick={() => onPick(plan.id)} />
         ))}
       </div>
-      <CTA color="var(--c-accent)" textColor="var(--c-ink)" size="lg" onClick={onPurchase}>
-        {purchaseCta}
+      <CTA color="var(--c-accent)" textColor="var(--c-ink)" size="lg" disabled={loading} onClick={onPurchase}>
+        {loading ? "支付确认中..." : purchaseCta}
       </CTA>
       <div className="mt-2 text-center text-[9px] font-semibold text-white/45 xl:text-[11px]">{config.paymentNote}</div>
       <div className="mt-4 hidden grid-cols-3 gap-2 text-center xl:grid">
@@ -163,7 +170,7 @@ function PlanPanel({
   );
 }
 
-export function ProScreen() {
+export function ProScreen({ apiClient }: ProScreenProps = {}) {
   const router = useRouter();
   const activatePro = useAppStore((state) => state.activatePro);
   const subscription = useAppStore((state) => state.subscription);
@@ -171,8 +178,10 @@ export function ProScreen() {
   const [hydrated, setHydrated] = useState(false);
   const [picked, setPicked] = useState<ProPlanId>(subscription.planId ?? "yearly");
   const [toast, setToast] = useState<string | null>(null);
+  const [purchasing, setPurchasing] = useState(false);
   const routeTimer = useRef<number | null>(null);
   const selectedPlan = useMemo(() => findProPlan(picked), [picked]);
+  const client = useMemo(() => apiClient ?? createFetchApiClient(), [apiClient]);
   const { config: experienceConfig } = useExperienceConfig();
   const config = experienceConfig.pro;
 
@@ -186,12 +195,27 @@ export function ProScreen() {
     };
   }, []);
 
-  const completePurchase = () => {
-    activatePro(selectedPlan.id);
-    setToast(formatExperienceTemplate(config.successToastTemplate, { planName: selectedPlan.name }));
-    routeTimer.current = window.setTimeout(() => {
-      router.push("/me");
-    }, 850);
+  const completePurchase = async () => {
+    if (purchasing) return;
+    setPurchasing(true);
+
+    try {
+      const checkout = await client.createProCheckout({ planId: selectedPlan.id, channel: "wechat" });
+      if (!checkout.subscription.isPro || !checkout.subscription.planId) {
+        setToast(checkout.payment.message);
+        return;
+      }
+
+      activatePro(checkout.subscription.planId, checkout.subscription.startedAt, checkout.subscription.sourceOrderId);
+      setToast(formatExperienceTemplate(config.successToastTemplate, { planName: selectedPlan.name }));
+      routeTimer.current = window.setTimeout(() => {
+        router.push("/me");
+      }, 1200);
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : "支付创建失败，请稍后重试");
+    } finally {
+      setPurchasing(false);
+    }
   };
 
   return (
@@ -252,7 +276,7 @@ export function ProScreen() {
             </section>
           </div>
 
-          <PlanPanel picked={picked} selectedPlan={selectedPlan} config={config} onPick={setPicked} onPurchase={completePurchase} />
+          <PlanPanel picked={picked} selectedPlan={selectedPlan} config={config} loading={purchasing} onPick={setPicked} onPurchase={completePurchase} />
         </div>
       </div>
 

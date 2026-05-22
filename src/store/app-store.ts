@@ -55,6 +55,7 @@ export type SubscriptionState = {
   isPro: boolean;
   planId: ProPlanId | null;
   startedAt: string | null;
+  sourceOrderId: string | null;
 };
 
 export const DEFAULT_ONBOARDING: OnboardingState = DEFAULT_ONBOARDING_CONFIG.defaults;
@@ -71,7 +72,8 @@ export const DEFAULT_PLAN_SETTINGS: PlanSettingsState = DEFAULT_PLAN_SETTINGS_CO
 export const DEFAULT_SUBSCRIPTION: SubscriptionState = {
   isPro: false,
   planId: null,
-  startedAt: null
+  startedAt: null,
+  sourceOrderId: null
 };
 
 type AppStoreState = {
@@ -89,7 +91,7 @@ type AppStoreState = {
   resetOnboarding: () => void;
   updateDailyWords: (dailyWords: number) => void;
   updatePlanSettings: (settings: Partial<PlanSettingsState>) => void;
-  activatePro: (planId: ProPlanId) => void;
+  activatePro: (planId: ProPlanId, startedAt?: string | null, sourceOrderId?: string | null) => void;
   resetSubscription: () => void;
   applyAnswerReward: (correct: boolean) => void;
   awardLearning: (reward: Partial<Pick<LearningState, "xp" | "gems" | "streak">>) => void;
@@ -151,12 +153,13 @@ export const useAppStore = create<AppStoreState>()(
           }
         }));
       },
-      activatePro: (planId) => {
+      activatePro: (planId, startedAt, sourceOrderId) => {
         set({
           subscription: {
             isPro: true,
             planId,
-            startedAt: new Date().toISOString()
+            startedAt: startedAt ?? new Date().toISOString(),
+            sourceOrderId: sourceOrderId ?? null
           }
         });
       },

@@ -282,11 +282,7 @@ function ProfileActions({
       <Link
         href="/pro"
         role="button"
-        onClick={(event) => {
-          event.preventDefault();
-          onNavigate("/pro");
-        }}
-        className="flex min-h-[72px] w-full items-center gap-3 rounded-[16px] border-0 bg-[linear-gradient(135deg,#2B1F6E,#1A1340)] p-3.5 text-left text-white shadow-card xl:min-h-[86px] xl:rounded-[22px] xl:p-4"
+        className="flex min-h-[72px] w-full scroll-mb-28 items-center gap-3 rounded-[16px] border-0 bg-[linear-gradient(135deg,#2B1F6E,#1A1340)] p-3.5 text-left text-white shadow-card xl:min-h-[86px] xl:scroll-mb-0 xl:rounded-[22px] xl:p-4"
         aria-label={config.proAriaLabel}
       >
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-[var(--c-accent)] text-xl text-[var(--c-ink)] xl:h-12 xl:w-12">👑</span>

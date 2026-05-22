@@ -1,4 +1,6 @@
 export type ProPlanId = "monthly" | "yearly" | "lifetime";
+export type BillingChannel = "wechat" | "alipay" | "apple" | "demo";
+export type BillingOrderStatus = "pending" | "paid" | "failed";
 
 export type ProPlan = {
   id: ProPlanId;
@@ -16,6 +18,45 @@ export type ProFeature = {
   subtitle: string;
   free: string;
   pro: string;
+};
+
+export type ProCheckoutInput = {
+  planId: ProPlanId;
+  channel?: BillingChannel;
+};
+
+export type ProBillingOrder = {
+  id: string;
+  userId: string;
+  customerName: string;
+  planId: ProPlanId;
+  planName: string;
+  amountCny: number;
+  channel: BillingChannel;
+  status: BillingOrderStatus;
+  createdAt: string;
+  paidAt: string | null;
+};
+
+export type ProSubscription = {
+  isPro: boolean;
+  planId: ProPlanId | null;
+  startedAt: string | null;
+  expiresAt: string | null;
+  sourceOrderId: string | null;
+};
+
+export type ProPaymentIntent = {
+  provider: BillingChannel;
+  status: BillingOrderStatus;
+  message: string;
+  checkoutUrl?: string;
+};
+
+export type ProCheckoutResult = {
+  order: ProBillingOrder;
+  subscription: ProSubscription;
+  payment: ProPaymentIntent;
 };
 
 export const PRO_FEATURES: ProFeature[] = [
@@ -37,4 +78,12 @@ export const PRO_PLANS: ProPlan[] = [
 
 export function findProPlan(planId: ProPlanId) {
   return PRO_PLANS.find((plan) => plan.id === planId) ?? PRO_PLANS[1];
+}
+
+export function isProPlanId(value: unknown): value is ProPlanId {
+  return value === "monthly" || value === "yearly" || value === "lifetime";
+}
+
+export function isBillingChannel(value: unknown): value is BillingChannel {
+  return value === "wechat" || value === "alipay" || value === "apple" || value === "demo";
 }
