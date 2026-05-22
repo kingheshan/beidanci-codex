@@ -46,40 +46,28 @@ describe("HomeScreen", () => {
     expect(screen.getByRole("button", { name: /开始 情景闯关 · 35词/ })).toBeInTheDocument();
   });
 
-  it("opens the daily story quick tool", async () => {
-    const user = userEvent.setup();
+  it("renders the daily story quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    await user.click(screen.getByRole("button", { name: /AI 每日故事/ }));
-
-    expect(push).toHaveBeenCalledWith("/story");
+    expect(screen.getByRole("button", { name: /AI 每日故事/ })).toHaveAttribute("href", "/story");
   });
 
-  it("opens the word PK quick tool", async () => {
-    const user = userEvent.setup();
+  it("renders the word PK quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    await user.click(screen.getByRole("button", { name: /单词 PK/ }));
-
-    expect(push).toHaveBeenCalledWith("/pk");
+    expect(screen.getByRole("button", { name: /单词 PK/ })).toHaveAttribute("href", "/pk");
   });
 
-  it("opens the camera OCR quick tool", async () => {
-    const user = userEvent.setup();
+  it("renders the camera OCR quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    await user.click(screen.getByRole("button", { name: /拍照查词/ }));
-
-    expect(push).toHaveBeenCalledWith("/camera");
+    expect(screen.getByRole("button", { name: /拍照查词/ })).toHaveAttribute("href", "/camera");
   });
 
-  it("shows a toast for remaining future quick tools instead of navigating to missing pages", async () => {
-    const user = userEvent.setup();
+  it("renders the mistake memory nebula quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    await user.click(screen.getByRole("button", { name: /错词记忆星云/ }));
-
-    expect(await screen.findByText("错词记忆星云会在后续阶段接入")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /错词记忆星云/ })).toHaveAttribute("href", "/map");
   });
 
   it("opens the leaderboard from the bottom tab bar", async () => {

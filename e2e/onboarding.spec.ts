@@ -48,14 +48,18 @@ test("Gate 2 onboarding flow persists preferences and lands on home", async ({ p
   await expect(page).toHaveURL(/\/home$/);
 });
 
-test("Gate 3 home opens study mode hub and keeps non-P0 entries on page", async ({ page }) => {
+test("Gate 3 home opens study mode hub and memory nebula", async ({ page }) => {
   await page.goto("/home");
 
   await expect(page.getByText("下午好，小敏")).toBeVisible();
   await expect(page.getByText("中考 1600 · 今日计划")).toBeVisible();
 
   await page.getByRole("button", { name: /错词记忆星云/ }).click();
-  await expect(page.getByText("错词记忆星云会在后续阶段接入")).toBeVisible();
+  await expect(page).toHaveURL(/\/map$/, { timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "错词记忆星云" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /打开 persist 图谱/ }).first()).toBeVisible();
+
+  await page.goto("/home");
 
   await page.getByRole("button", { name: /开始 情景闯关 · 20词/ }).click({ force: true });
   await expect(page).toHaveURL(/\/study$/);

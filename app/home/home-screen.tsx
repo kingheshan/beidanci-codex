@@ -171,11 +171,7 @@ function QuickToolButton({ tool, onClick }: { tool: QuickTool; onClick: () => vo
       <Link
         href={tool.href}
         role="button"
-        onClick={(event) => {
-          event.preventDefault();
-          onClick();
-        }}
-        className="min-h-[104px] rounded-[14px] border-0 p-3 text-left"
+        className="block min-h-[104px] rounded-[14px] border-0 p-3 text-left"
         style={{ background: tool.bg }}
         aria-label={`${tool.title} ${tool.subtitle}`}
       >
@@ -188,7 +184,7 @@ function QuickToolButton({ tool, onClick }: { tool: QuickTool; onClick: () => vo
     <button
       type="button"
       onClick={onClick}
-      className="min-h-[104px] rounded-[14px] border-0 p-3 text-left"
+      className="block min-h-[104px] rounded-[14px] border-0 p-3 text-left"
       style={{ background: tool.bg }}
       aria-label={`${tool.title} ${tool.subtitle}`}
     >

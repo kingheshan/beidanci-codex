@@ -17,7 +17,7 @@ describe("/api/v1/config/study", () => {
       }
     });
     expect(body.lessons).toHaveLength(5);
-    expect(body.quickTools).toEqual(expect.arrayContaining([expect.objectContaining({ id: "memory", enabled: false })]));
+    expect(body.quickTools).toEqual(expect.arrayContaining([expect.objectContaining({ id: "memory", enabled: true, href: "/map" })]));
     expect(body.modes.map((mode: { id: string }) => mode.id)).toEqual(["mc", "flip", "spell", "listen", "context", "image"]);
   });
 });

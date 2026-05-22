@@ -11,12 +11,13 @@ describe("study config", () => {
     expect(config.modes.map((mode) => mode.id)).toEqual(["mc", "flip", "spell", "listen", "context", "image"]);
   });
 
-  it("marks implemented quick tools and preserves disabled future tools", () => {
+  it("marks implemented quick tools with real routes", () => {
     const config = getStudyConfig();
 
-    expect(config.quickTools.filter((tool) => tool.enabled).map((tool) => tool.href)).toEqual(["/story", "/pk", "/camera"]);
+    expect(config.quickTools.filter((tool) => tool.enabled).map((tool) => tool.href)).toEqual(["/story", "/pk", "/camera", "/map"]);
     expect(config.quickTools.find((tool) => tool.id === "memory")).toMatchObject({
-      enabled: false,
+      enabled: true,
+      href: "/map",
       unavailableCopy: "错词记忆星云会在后续阶段接入"
     });
   });
