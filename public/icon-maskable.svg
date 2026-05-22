@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="爱上背单词可裁切图标">
+  <rect width="512" height="512" fill="#6C5CE7"/>
+  <circle cx="256" cy="256" r="190" fill="#FFD60A"/>
+  <circle cx="256" cy="258" r="142" fill="#FFFFFF"/>
+  <path d="M151 228c12-72 54-116 105-116s93 44 105 116c-26-36-62-54-105-54s-79 18-105 54Z" fill="#EDE8FF"/>
+  <circle cx="211" cy="252" r="15" fill="#1A1340"/>
+  <circle cx="301" cy="252" r="15" fill="#1A1340"/>
+  <path d="M219 315c25 20 50 20 74 0" fill="none" stroke="#1A1340" stroke-width="20" stroke-linecap="round"/>
+  <path d="M166 158 128 92l76 30 52-62 52 62 76-30-38 66" fill="#00D4AA"/>
+</svg>

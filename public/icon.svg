@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="爱上背单词图标">
+  <rect width="512" height="512" rx="116" fill="#6C5CE7"/>
+  <circle cx="256" cy="250" r="142" fill="#FFD60A"/>
+  <path d="M154 245c0-66 44-118 102-118s102 52 102 118c0 80-44 140-102 140s-102-60-102-140Z" fill="#FFFFFF"/>
+  <path d="M184 196c22-40 48-60 78-60 46 0 82 44 82 103 0 27-7 54-21 78 22-23 35-55 35-92 0-66-44-118-102-118-42 0-78 28-95 69-12 30-13 68-1 101-1-31 7-60 24-81Z" fill="#EDE8FF"/>
+  <circle cx="212" cy="242" r="14" fill="#1A1340"/>
+  <circle cx="300" cy="242" r="14" fill="#1A1340"/>
+  <path d="M218 304c26 22 51 22 76 0" fill="none" stroke="#1A1340" stroke-width="20" stroke-linecap="round"/>
+  <path d="M165 154 128 90l74 28 54-62 54 62 74-28-37 64" fill="#00D4AA"/>
+  <path d="M180 398h152" stroke="#1A1340" stroke-width="24" stroke-linecap="round" opacity=".18"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="爱上背单词 Apple 图标">
+  <rect width="180" height="180" rx="40" fill="#6C5CE7"/>
+  <circle cx="90" cy="88" r="52" fill="#FFD60A"/>
+  <circle cx="90" cy="91" r="42" fill="#FFFFFF"/>
+  <circle cx="74" cy="88" r="5" fill="#1A1340"/>
+  <circle cx="106" cy="88" r="5" fill="#1A1340"/>
+  <path d="M78 112c9 8 17 8 26 0" fill="none" stroke="#1A1340" stroke-width="7" stroke-linecap="round"/>
+  <path d="M56 55 46 36l26 10 18-22 18 22 26-10-10 19" fill="#00D4AA"/>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="爱上背单词分享图">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6C5CE7"/>
+      <stop offset=".62" stop-color="#2B1F6E"/>
+      <stop offset="1" stop-color="#1A1340"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <path d="M760 0h440v630H650l110-268Z" fill="#FFFFFF" opacity=".08"/>
+  <path d="M880 92h230v446H790l90-222Z" fill="#00D4AA" opacity=".12"/>
+  <path d="M0 520h1200v110H0z" fill="#1A1340" opacity=".2"/>
+  <g transform="translate(835 160)">
+    <rect width="250" height="250" rx="58" fill="#FFFFFF" opacity=".14"/>
+    <circle cx="125" cy="118" r="76" fill="#FFD60A"/>
+    <circle cx="125" cy="126" r="58" fill="#FFFFFF"/>
+    <circle cx="104" cy="120" r="8" fill="#1A1340"/>
+    <circle cx="146" cy="120" r="8" fill="#1A1340"/>
+    <path d="M110 154c12 10 24 10 36 0" fill="none" stroke="#1A1340" stroke-width="10" stroke-linecap="round"/>
+    <path d="M82 79 68 52l36 14 21-28 21 28 36-14-14 27" fill="#00D4AA"/>
+  </g>
+  <text x="96" y="180" fill="#FFD60A" font-size="28" font-weight="800" font-family="Arial, sans-serif">AI · K12 VOCAB</text>
+  <text x="96" y="292" fill="#FFFFFF" font-size="84" font-weight="900" font-family="Arial, sans-serif">爱上背单词</text>
+  <text x="96" y="372" fill="#FFFFFF" opacity=".82" font-size="30" font-weight="700" font-family="Arial, sans-serif">刷词 · SRS 复习 · AI 故事 · PK · OCR · 家长周报</text>
+  <rect x="96" y="440" width="300" height="66" rx="20" fill="#FFD60A"/>
+  <text x="140" y="484" fill="#1A1340" font-size="26" font-weight="900" font-family="Arial, sans-serif">开始今日学习</text>
+</svg>

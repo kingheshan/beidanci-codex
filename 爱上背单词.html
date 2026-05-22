@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>爱上背单词 · 可点击原型 v1</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/cn-fontsource-smiley-sans-oblique-regular/font.css" rel="stylesheet"/>
+
+<link rel="stylesheet" href="styles/tokens.css"/>
+
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  body {
+    font-family: var(--font-body-cn);
+    background: var(--c-bg);
+    -webkit-font-smoothing: antialiased;
+    color: var(--c-ink);
+  }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+</style>
+</head>
+<body data-theme="purple">
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Starter components -->
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<!-- Brand & UI -->
+<script type="text/babel" src="components/mascot.jsx"></script>
+<script type="text/babel" src="components/ui.jsx"></script>
+<script type="text/babel" src="components/screens-system.jsx"></script>
+
+<!-- Interactive layer (data + state + shell + screens + apps) -->
+<script type="text/babel" src="interactive/data.jsx"></script>
+<script type="text/babel" src="interactive/store.jsx"></script>
+<script type="text/babel" src="interactive/session.jsx"></script>
+<script type="text/babel" src="interactive/shell.jsx"></script>
+
+<!-- Study modes -->
+<script type="text/babel" src="interactive/study-modes-1.jsx"></script>
+<script type="text/babel" src="interactive/study-modes-2.jsx"></script>
+
+<!-- AI features + phone screens -->
+<script type="text/babel" src="interactive/ai-features.jsx"></script>
+<script type="text/babel" src="interactive/phone-screens.jsx"></script>
+<script type="text/babel" src="interactive/phone-screens-2.jsx"></script>
+<script type="text/babel" src="interactive/api.jsx"></script>
+<script type="text/babel" src="interactive/extra-screens.jsx"></script>
+<script type="text/babel" src="interactive/phone-app.jsx"></script>
+<script type="text/babel" src="interactive/parent-app.jsx"></script>
+
+<!-- Web app -->
+<script type="text/babel" src="interactive/web-app.jsx"></script>
+<script type="text/babel" src="interactive/web-app-2.jsx"></script>
+<script type="text/babel" src="interactive/web-extras.jsx"></script>
+
+<!-- Main -->
+<script type="text/babel" src="interactive/main-app.jsx"></script>
+</body>
+</html>
