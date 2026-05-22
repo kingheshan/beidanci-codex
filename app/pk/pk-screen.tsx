@@ -23,16 +23,16 @@ import { Wordy, WordyMini } from "@/components/wordy";
 import { DASHBOARD_DATE_LABEL } from "@/lib/dashboard-data";
 import { formatExperienceTemplate, type ExperienceConfig } from "@/lib/experience-config";
 import {
-  getNextHp,
+  PK_AI_COUNTER_DAMAGE,
   getPkQuestions,
   PK_DAMAGE,
   PK_OPPONENT,
-  PK_OPPONENT_REACTIONS,
   PK_REWARD,
   PK_ROUND_SECONDS,
   PK_TOTAL_ROUNDS,
   type PkOpponentReaction
 } from "@/lib/pk-data";
+import { resolvePkRound, type PkAiDecision } from "@/lib/pk-ai";
 import { useExperienceConfig } from "@/lib/use-remote-config";
 import type { Word } from "@/lib/words";
 import { useAppStore } from "@/store/app-store";
@@ -41,6 +41,8 @@ type PkPhase = "matching" | "playing" | "won" | "lost";
 type AnswerState = {
   pickedId: string | null;
   correct: boolean | null;
+  aiDecision: PkAiDecision | null;
+  aiCountered: boolean;
 };
 type LearningStats = ReturnType<typeof useAppStore.getState>["learning"];
 type PKConfig = ExperienceConfig["pk"];
@@ -271,7 +273,7 @@ function PkPlayer({
   right?: boolean;
   reaction?: PkOpponentReaction;
 }) {
-  const label = reaction === "wrong" ? "答错" : reaction === "fast" ? "抢答" : reaction === "slow" ? "思考中" : "";
+  const label = reaction === "wrong" ? "AI 误判" : reaction === "fast" ? "AI 抢答" : reaction === "slow" ? "AI 思考" : "";
 
   return (
     <div className={`flex min-w-0 flex-1 flex-col gap-2 ${right ? "items-end" : "items-start"}`}>
@@ -353,7 +355,7 @@ function MatchingScreen({ onClose, frame }: { onClose: () => void; frame: Omit<P
                     ?
                   </div>
                   <div className="aibd-display mt-2 text-base">匹配中</div>
-                  <div className="text-[11px] font-bold text-white/60">同段位玩家</div>
+                  <div className="text-[11px] font-bold text-white/60">自适应 AI</div>
                 </div>
               </div>
             </div>
@@ -495,7 +497,7 @@ export function PKScreen() {
   const [myHp, setMyHp] = useState(1);
   const [oppHp, setOppHp] = useState(1);
   const [secondsLeft, setSecondsLeft] = useState(PK_ROUND_SECONDS);
-  const [answer, setAnswer] = useState<AnswerState>({ pickedId: null, correct: null });
+  const [answer, setAnswer] = useState<AnswerState>({ pickedId: null, correct: null, aiDecision: null, aiCountered: false });
   const [oppReaction, setOppReaction] = useState<PkOpponentReaction>(null);
   const [toast, setToast] = useState<string | null>(null);
   const awardedRef = useRef(false);
@@ -530,7 +532,7 @@ export function PKScreen() {
     setMyHp(1);
     setOppHp(1);
     setSecondsLeft(PK_ROUND_SECONDS);
-    setAnswer({ pickedId: null, correct: null });
+    setAnswer({ pickedId: null, correct: null, aiDecision: null, aiCountered: false });
     setOppReaction(null);
   };
 
@@ -550,7 +552,7 @@ export function PKScreen() {
         return;
       }
       setRound((value) => value + 1);
-      setAnswer({ pickedId: null, correct: null });
+      setAnswer({ pickedId: null, correct: null, aiDecision: null, aiCountered: false });
       setOppReaction(null);
       setSecondsLeft(PK_ROUND_SECONDS);
     }, 900);
@@ -560,17 +562,21 @@ export function PKScreen() {
     if (phase !== "playing" || answer.pickedId) return;
     if (timerRef.current) window.clearInterval(timerRef.current);
 
-    const correct = option?.id === current.word.id;
-    const reaction = PK_OPPONENT_REACTIONS[round] ?? "slow";
-    const nextMyHp = correct ? myHp : getNextHp(myHp);
-    const nextOppHp = correct ? getNextHp(oppHp) : oppHp;
+    const result = resolvePkRound({
+      question: current,
+      optionId: option?.id ?? null,
+      round,
+      myHp,
+      oppHp,
+      secondsLeft
+    });
 
-    setAnswer({ pickedId: option?.id ?? "timeout", correct });
-    setOppReaction(reaction);
-    setMyHp(nextMyHp);
-    setOppHp(nextOppHp);
-    advance(nextMyHp, nextOppHp);
-  }, [advance, answer.pickedId, current.word.id, myHp, oppHp, phase, round]);
+    setAnswer({ pickedId: option?.id ?? "timeout", correct: result.userCorrect, aiDecision: result.aiDecision, aiCountered: result.aiCountered });
+    setOppReaction(result.aiDecision.reaction);
+    setMyHp(result.nextMyHp);
+    setOppHp(result.nextOppHp);
+    advance(result.nextMyHp, result.nextOppHp);
+  }, [advance, answer.pickedId, current, myHp, oppHp, phase, round, secondsLeft]);
 
   useEffect(() => {
     if (phase !== "matching") return;
@@ -648,9 +654,18 @@ export function PKScreen() {
 
               <div aria-live="polite" className="mt-4 min-h-9 text-center">
                 {answer.pickedId ? (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 rounded-pill bg-white/12 px-4 py-2 text-sm font-black">
-                    {answer.correct ? <CheckIcon size={16} /> : <XIcon size={16} />}
-                    {answer.correct ? `命中！对手 -${Math.round(PK_DAMAGE * 100)}%` : "失误！你 -18%"}
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="inline-flex flex-col items-center gap-1 rounded-[16px] bg-white/12 px-4 py-2 text-sm font-black">
+                    <span className="inline-flex items-center gap-2">
+                      {answer.correct ? <CheckIcon size={16} /> : <XIcon size={16} />}
+                      {answer.correct ? `命中！对手 -${Math.round(PK_DAMAGE * 100)}%` : "失误！你 -18%"}
+                    </span>
+                    {answer.aiDecision ? (
+                      <span className="text-[10px] font-bold text-white/65">
+                        {answer.aiCountered
+                          ? `Wordy AI 抢答命中，你 -${Math.round(PK_AI_COUNTER_DAMAGE * 100)}%`
+                          : `Wordy AI：${answer.aiDecision.strategy} · ${Math.round(answer.aiDecision.confidence * 100)}%`}
+                      </span>
+                    ) : null}
                   </motion.div>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-pill bg-white/[.08] px-3 py-1.5 text-[11px] font-bold text-white/55">

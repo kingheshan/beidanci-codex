@@ -223,7 +223,7 @@ test("Gate 10 leaderboard opens from bottom nav and starts rank practice", async
 test("Gate 11 daily story opens from home and supports word popover and quiz feedback", async ({ page }) => {
   await page.goto("/home");
 
-  await page.getByRole("button", { name: /AI 每日故事/ }).click();
+  await page.getByRole("link", { name: /AI 每日故事/ }).click();
   await expect(page).toHaveURL(/\/story$/);
   await expect(page.getByRole("heading", { name: "The Persistent Bookworm" })).toBeVisible();
   await expect(page.getByText("出现的复习词 · 5 / 12")).toBeVisible();
@@ -244,10 +244,10 @@ test("Gate 11 daily story opens from home and supports word popover and quiz fee
 test("Gate 12 word PK opens from home and completes a victory match", async ({ page }) => {
   await page.goto("/home", { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("button", { name: /单词 PK/ }).click();
+  await page.getByRole("link", { name: /单词 PK/ }).click({ force: true });
   await expect(page).toHaveURL(/\/pk$/);
-  await expect(page.getByText("正在匹配对手...")).toBeVisible();
-  await expect(page.getByText("翡翠组 · Lv. 21-25")).toBeVisible();
+  await expect(page.getByText("正在唤醒 AI 对手...")).toBeVisible();
+  await expect(page.getByText("Wordy AI · 自适应难度")).toBeVisible();
 
   await expect(page.getByText("第 1 题 / 6")).toBeVisible({ timeout: 3000 });
 
@@ -263,7 +263,7 @@ test("Gate 12 word PK opens from home and completes a victory match", async ({ p
 test("Gate 13 camera OCR scans a page and adds selected words to review", async ({ page }) => {
   await page.goto("/home", { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("button", { name: /拍照查词/ }).click({ force: true });
+  await page.getByRole("link", { name: /拍照查词/ }).click({ force: true });
   await expect(page).toHaveURL(/\/camera$/, { timeout: 10_000 });
   await expect(page.getByText("AI · OCR 圈词")).toBeVisible();
   await expect(page.getByText("对准课本，自动识别页面所有英文单词")).toBeVisible();

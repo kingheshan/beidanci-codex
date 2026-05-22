@@ -49,25 +49,25 @@ describe("HomeScreen", () => {
   it("renders the daily story quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    expect(screen.getByRole("button", { name: /AI 每日故事/ })).toHaveAttribute("href", "/story");
+    expect(screen.getByRole("link", { name: /AI 每日故事/ })).toHaveAttribute("href", "/story");
   });
 
   it("renders the word PK quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    expect(screen.getByRole("button", { name: /单词 PK/ })).toHaveAttribute("href", "/pk");
+    expect(screen.getByRole("link", { name: /单词 PK/ })).toHaveAttribute("href", "/pk");
   });
 
   it("renders the camera OCR quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    expect(screen.getByRole("button", { name: /拍照查词/ })).toHaveAttribute("href", "/camera");
+    expect(screen.getByRole("link", { name: /拍照查词/ })).toHaveAttribute("href", "/camera");
   });
 
   it("renders the mistake memory nebula quick tool as a real link", () => {
     render(<HomeScreen />);
 
-    expect(screen.getByRole("button", { name: /错词记忆星云/ })).toHaveAttribute("href", "/map");
+    expect(screen.getByRole("link", { name: /错词记忆星云/ })).toHaveAttribute("href", "/map");
   });
 
   it("opens the leaderboard from the bottom tab bar", async () => {

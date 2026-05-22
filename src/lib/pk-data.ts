@@ -6,9 +6,11 @@ export type PkQuestion = {
 };
 
 export type Opponent = {
+  id: string;
   name: string;
   level: number;
   league: string;
+  style: string;
 };
 
 export const PK_REWARD = {
@@ -19,15 +21,17 @@ export const PK_REWARD = {
 export const PK_TOTAL_ROUNDS = 6;
 export const PK_ROUND_SECONDS = 10;
 export const PK_DAMAGE = 0.18;
+export const PK_AI_COUNTER_DAMAGE = 0.12;
 
 export const PK_OPPONENT: Opponent = {
-  name: "璐璐",
+  id: "wordy-ai",
+  name: "Wordy AI",
   level: 25,
-  league: "翡翠组"
+  league: "AI 翡翠组",
+  style: "自适应策略"
 };
 
-export const PK_OPPONENT_REACTIONS = ["fast", "wrong", "fast", "slow", "wrong", "fast"] as const;
-export type PkOpponentReaction = (typeof PK_OPPONENT_REACTIONS)[number] | null;
+export type PkOpponentReaction = "fast" | "wrong" | "slow" | null;
 
 export function getPkQuestions(): PkQuestion[] {
   return STUDY_WORDS.slice(0, PK_TOTAL_ROUNDS).map((word, index) => {

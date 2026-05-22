@@ -38,7 +38,7 @@ describe("/api/v1/config/experience", () => {
       },
       pk: {
         pageTitle: "PK 对战工作台",
-        matchingTitle: "正在匹配对手..."
+        matchingTitle: "正在唤醒 AI 对手..."
       },
       wordDetail: {
         pageTitle: "单词详情",

@@ -27,12 +27,13 @@ describe("PKScreen", () => {
   it("matches an opponent and enters the first round", async () => {
     render(<PKScreen />);
 
-    expect(screen.getByText("正在匹配对手...")).toBeInTheDocument();
-    expect(screen.getByText("翡翠组 · Lv. 21-25")).toBeInTheDocument();
+    expect(screen.getByText("正在唤醒 AI 对手...")).toBeInTheDocument();
+    expect(screen.getByText("Wordy AI · 自适应难度")).toBeInTheDocument();
 
     expect(await screen.findByText(roundLabel(1), {}, { timeout: 2400 })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "坚持" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /persist/ })).toBeInTheDocument();
+    expect(screen.getByText("Wordy AI")).toBeInTheDocument();
   }, 4000);
 
   it("renders the desktop PK workspace during matching", () => {
@@ -40,7 +41,7 @@ describe("PKScreen", () => {
     render(<PKScreen />);
 
     expect(screen.getByRole("heading", { name: "PK 对战工作台" })).toBeInTheDocument();
-    expect(screen.getByText("实时对战")).toBeInTheDocument();
+    expect(screen.getByText("AI 人机对战")).toBeInTheDocument();
     expect(screen.getByText("6 题分胜负")).toBeInTheDocument();
     expect(screen.getByText("赢家奖励")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "对战规则" })).toBeInTheDocument();

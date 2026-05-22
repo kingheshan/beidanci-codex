@@ -111,7 +111,7 @@ export const DEFAULT_STUDY_CONFIG: StudyConfig = {
   ],
   quickTools: [
     { id: "story", title: "AI 每日故事", subtitle: "今日已生成", icon: "✨", color: "var(--c-coral)", bg: "#FFE9DE", href: "/story", enabled: true, unavailableCopy: "AI 每日故事会在后续阶段接入" },
-    { id: "pk", title: "单词 PK", subtitle: "2 分钟对战", icon: "⚔️", color: "var(--c-pink)", bg: "#FFE4ED", href: "/pk", enabled: true, unavailableCopy: "单词 PK会在后续阶段接入" },
+    { id: "pk", title: "单词 PK", subtitle: "挑战 Wordy AI", icon: "⚔️", color: "var(--c-pink)", bg: "#FFE4ED", href: "/pk", enabled: true, unavailableCopy: "单词 PK会在后续阶段接入" },
     { id: "camera", title: "拍照查词", subtitle: "OCR 一键加", icon: "📷", color: "var(--c-mint)", bg: "#D4F8EF", href: "/camera", enabled: true, unavailableCopy: "拍照查词会在后续阶段接入" },
     { id: "memory", title: "错词记忆星云", subtitle: "可视化弱项", icon: "🧠", color: "var(--c-primary)", bg: "var(--c-primary-soft)", href: "/map", enabled: true, unavailableCopy: "错词记忆星云会在后续阶段接入" }
   ],

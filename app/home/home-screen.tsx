@@ -170,7 +170,6 @@ function QuickToolButton({ tool, onClick }: { tool: QuickTool; onClick: () => vo
     return (
       <Link
         href={tool.href}
-        role="button"
         className="block min-h-[104px] rounded-[14px] border-0 p-3 text-left"
         style={{ background: tool.bg }}
         aria-label={`${tool.title} ${tool.subtitle}`}

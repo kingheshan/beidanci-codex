@@ -6,10 +6,10 @@ test("Gate 21 web PK renders desktop match cockpit and starts a round", async ({
   await page.goto("/pk", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByRole("heading", { name: "PK 对战工作台" })).toBeVisible();
-  await expect(page.getByText("实时对战", { exact: true })).toBeVisible();
+  await expect(page.getByText("AI 人机对战", { exact: true })).toBeVisible();
   await expect(page.getByText("6 题分胜负", { exact: true })).toBeVisible();
   await expect(page.getByText("赢家奖励", { exact: true })).toBeVisible();
-  await expect(page.getByText("正在匹配对手...").or(page.getByText("第 1 题 / 6"))).toBeVisible();
+  await expect(page.getByText("正在唤醒 AI 对手...").or(page.getByText("第 1 题 / 6"))).toBeVisible();
 
   await expect(page.getByText("第 1 题 / 6")).toBeVisible({ timeout: 6000 });
   await expect(page.getByText("本轮目标")).toBeVisible();
