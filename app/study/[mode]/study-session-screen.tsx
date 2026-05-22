@@ -18,7 +18,7 @@ type StudySessionScreenProps = {
   mode: StudyModeId;
   wordIds?: string[];
   sourceLabel?: string;
-  apiClient?: Pick<ApiClient, "submitAnswer">;
+  apiClient?: Pick<ApiClient, "submitAnswer"> & Partial<Pick<ApiClient, "getMistakeCoach">>;
 };
 
 type StudyModeBodyProps = {
@@ -77,11 +77,12 @@ function StudyFeedback({ session }: { session: StudySession }) {
   if (!answer || !word) return null;
 
   const correct = answer.correct;
+  const coach = !correct ? session.currentCoach : null;
   return (
     <motion.div
       initial={{ y: 32, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="absolute bottom-0 left-0 right-0 z-40 border-t-2 px-4 pb-[max(22px,env(safe-area-inset-bottom))] pt-3 shadow-pop"
+      className="absolute bottom-0 left-0 right-0 z-40 max-h-[72dvh] overflow-auto border-t-2 px-4 pb-[max(22px,env(safe-area-inset-bottom))] pt-3 shadow-pop"
       style={{
         background: correct ? "#DCFCE7" : "#FFE2E5",
         borderColor: correct ? "var(--c-success)" : "var(--c-danger)"
@@ -100,6 +101,37 @@ function StudyFeedback({ session }: { session: StudySession }) {
         <b className="aibd-display-en">{word.word}</b> <span className="opacity-70">{word.pos}</span> · {word.cn}
         <div className="mt-0.5 opacity-85">提示：{word.etym}</div>
       </div>
+      {!correct ? (
+        <div className="mb-3 rounded-[16px] bg-white/70 p-3 text-[11px] leading-5 text-[#7A2630] shadow-[0_1px_0_rgba(122,22,32,.08)]">
+          <div className="mb-1.5 flex items-center gap-1.5 font-extrabold">
+            <SparkleIcon size={13} />
+            <span>AI 错因教练</span>
+            <Tag color="#7A2630" bg="rgba(255,255,255,.58)" size="xs">
+              {coach?.source === "ai" ? "DeepSeek" : "教研兜底"}
+            </Tag>
+          </div>
+          {coach ? (
+            <>
+              <p>
+                <b>错因：</b>
+                {coach.cause}
+              </p>
+              <p className="mt-1">
+                <b>记法：</b>
+                {coach.memoryTip}
+              </p>
+              <div className="mt-2 rounded-[12px] bg-white/80 px-3 py-2">
+                <div className="font-extrabold">10 秒微练习</div>
+                <div className="mt-0.5">{coach.microDrill.prompt}</div>
+                <div className="mt-1 text-[10px] opacity-75">答案：{coach.microDrill.answer}</div>
+              </div>
+              <p className="mt-2 font-bold">{coach.nextAction}</p>
+            </>
+          ) : (
+            <p>正在分析这次错因...</p>
+          )}
+        </div>
+      ) : null}
       <CTA color={correct ? "var(--c-success)" : "var(--c-danger)"} size="md" onClick={session.next}>继续</CTA>
     </motion.div>
   );
@@ -523,7 +555,8 @@ function resolveWordIds(wordIds: string[] | undefined) {
 export function StudySessionScreen({ mode, wordIds, sourceLabel, apiClient }: StudySessionScreenProps) {
   const { push, replace } = useRouter();
   const modeMeta = STUDY_MODES.find((item) => item.id === mode) ?? STUDY_MODES[0];
-  const activeWordbookId = useAppStore((state) => state.onboarding.wordbookId);
+  const onboarding = useAppStore((state) => state.onboarding);
+  const activeWordbookId = onboarding.wordbookId;
   const [toast, setToast] = useState<string | null>(null);
   const startTracked = useRef(false);
   const activeWordbookWords = useMemo(() => getClientWordbookWords(activeWordbookId), [activeWordbookId]);
@@ -534,7 +567,8 @@ export function StudySessionScreen({ mode, wordIds, sourceLabel, apiClient }: St
   );
   const wordPool = useMemo(() => uniqueWords([...words, ...activeWordbookWords]).slice(0, 16), [activeWordbookWords, words]);
   const client = useMemo(() => apiClient ?? createFetchApiClient(), [apiClient]);
-  const session = useStudySession({ mode, words, wordPool, submitAnswer: client.submitAnswer });
+  const coachContext = useMemo(() => ({ grade: onboarding.grade, interests: onboarding.interests }), [onboarding.grade, onboarding.interests]);
+  const session = useStudySession({ mode, words, wordPool, submitAnswer: client.submitAnswer, getMistakeCoach: client.getMistakeCoach, coachContext });
   const headerTitle = sourceLabel ?? modeMeta.title;
 
   useEffect(() => {

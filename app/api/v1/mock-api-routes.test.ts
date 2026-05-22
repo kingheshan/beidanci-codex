@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { GET as getStory } from "./ai/story/today/route";
 import { GET as getExample } from "./ai/example/[wordId]/route";
 import { GET as getMemoryMap } from "./ai/memory-map/[wordId]/route";
+import { POST as postMistakeCoach } from "./ai/mistake-coach/route";
 import { POST as postPhoneLogin } from "./auth/phone/route";
 import { POST as postPhoneCode } from "./auth/phone/code/route";
 import { POST as postLogout } from "./auth/logout/route";
@@ -85,6 +86,16 @@ describe("mock REST API routes", () => {
     ).resolves.toMatchObject({
       word: { word: "hypothesis" }
     });
+    await expect(
+      readJson<{ title: string; source: string }>(
+        await postMistakeCoach(
+          request("/api/v1/ai/mistake-coach", {
+            method: "POST",
+            body: JSON.stringify({ wordId: "w1", mode: "mc", ms: 1200 })
+          })
+        )
+      )
+    ).resolves.toMatchObject({ title: "释义选择错因教练", source: "fallback" });
     await expect(readJson<Array<{ word: string }>>(await getWordbookWords(request("/api/v1/wordbooks/ielts/words"), { params: { bookId: "ielts" } }))).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ word: "sustainable" })])
     );
@@ -215,7 +226,11 @@ describe("mock REST API routes", () => {
         body: JSON.stringify({ wordId: "w3", mode: "spell", correct: false, ms: 1600 })
       })
     );
-    await expect(readJson<{ xpAwarded: number; heartsLost: number }>(firstWrong)).resolves.toMatchObject({ xpAwarded: 0, heartsLost: 1 });
+    await expect(readJson<{ xpAwarded: number; heartsLost: number; coach?: { title: string } }>(firstWrong)).resolves.toMatchObject({
+      xpAwarded: 0,
+      heartsLost: 1,
+      coach: { title: "拼写召回错因教练" }
+    });
 
     await postAnswer(
       request("/api/v1/answers", {

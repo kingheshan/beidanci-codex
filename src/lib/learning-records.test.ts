@@ -30,6 +30,10 @@ describe("learning records", () => {
     );
 
     expect(firstWrong).toMatchObject({ xpAwarded: 0, heartsLost: 1, newMastery: 0.42 });
+    expect(firstWrong.coach).toMatchObject({
+      title: "拼写召回错因教练",
+      source: "fallback"
+    });
     expect(secondWrong).toMatchObject({ xpAwarded: 0, heartsLost: 1 });
     expect(correct).toMatchObject({ xpAwarded: 12, heartsLost: 0 });
     expect(correct.newMastery).toBeGreaterThan(secondWrong.newMastery);

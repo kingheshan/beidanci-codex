@@ -1,4 +1,5 @@
 import type { MemoryMapModel } from "./memory-map-data";
+import type { MistakeCoachInsight } from "./mistake-coach";
 import { ApiError, type ApiErrorOptions } from "./api-error";
 import { getExperienceConfig, type ExperienceConfig } from "./experience-config";
 import { getLearningPlanConfig, type LearningPlanConfig } from "./learning-plan-config";
@@ -78,6 +79,16 @@ export type SubmitAnswerResult = {
   xpAwarded: number;
   heartsLost: number;
   newMastery: number;
+  coach?: MistakeCoachInsight;
+};
+
+export type MistakeCoachRequestInput = {
+  wordId: string;
+  mode: StudyModeId;
+  selectedWordId?: string;
+  ms?: number;
+  grade?: string;
+  interests?: string[];
 };
 
 export type LogoutResult = {
@@ -106,6 +117,7 @@ export type ApiClient = {
   getDailyStory: (input?: DailyStoryInput) => Promise<DailyStory>;
   getExample: (wordId: string) => Promise<WordExample>;
   getMemoryMap: (wordId: string) => Promise<MemoryMapModel>;
+  getMistakeCoach: (input: MistakeCoachRequestInput) => Promise<MistakeCoachInsight>;
   getWordbooks: (activeId?: string) => Promise<WordbookCatalog>;
   getWordbookWords: (wordbookId: WordbookId) => Promise<Word[]>;
   requestPhoneCode: (input: PhoneCodeIssueInput) => Promise<PhoneCodeIssueResult>;
@@ -166,12 +178,13 @@ function sortMistakes(items: MistakeItem[], sort: MistakeSort) {
   });
 }
 
-function answerResult(correct: boolean): SubmitAnswerResult {
+function answerResult(correct: boolean, coach?: MistakeCoachInsight): SubmitAnswerResult {
   return {
     ok: true,
     xpAwarded: correct ? 12 : 0,
     heartsLost: correct ? 0 : 1,
-    newMastery: correct ? 0.74 : 0.42
+    newMastery: correct ? 0.74 : 0.42,
+    ...(coach && !correct ? { coach } : {})
   };
 }
 
@@ -254,7 +267,19 @@ export function createMockApiClient(options: MockApiClientOptions = {}): ApiClie
       }),
     ocrPhoto: () => resolveMock(config, () => getMockOcrResult()),
     getParentReport: () => resolveMock(config, () => PARENT_REPORT),
-    submitAnswer: (input) => resolveMock(config, () => answerResult(input.correct)),
+    submitAnswer: (input) =>
+      resolveMock(config, async () => {
+        if (input.correct) return answerResult(true);
+
+        const { buildFallbackMistakeCoach } = await import("./mistake-coach");
+        const { findAnyWord } = await import("./word-search");
+        const word = findAnyWord(input.wordId);
+        if (!word) {
+          throw new ApiError(`Word ${input.wordId} was not found`, { status: 404, code: "WORD_NOT_FOUND" });
+        }
+
+        return answerResult(false, buildFallbackMistakeCoach({ word, mode: input.mode, ms: input.ms }));
+      }),
     getPlans: () => resolveMock(config, () => PRO_PLANS),
     createProCheckout: (input) => resolveMock(config, () => demoProCheckout(input)),
     getProSubscription: () =>
@@ -279,6 +304,18 @@ export function createMockApiClient(options: MockApiClientOptions = {}): ApiClie
       resolveMock(config, async () => {
         const { getMemoryMap } = await import("./memory-map-data");
         return getMemoryMap(wordId);
+      }),
+    getMistakeCoach: (input) =>
+      resolveMock(config, async () => {
+        const { buildFallbackMistakeCoach } = await import("./mistake-coach");
+        const { findAnyWord } = await import("./word-search");
+        const word = findAnyWord(input.wordId);
+        if (!word) {
+          throw new ApiError(`Word ${input.wordId} was not found`, { status: 404, code: "WORD_NOT_FOUND" });
+        }
+
+        const selectedWord = input.selectedWordId ? findAnyWord(input.selectedWordId) : null;
+        return buildFallbackMistakeCoach({ word, mode: input.mode, selectedWord, ms: input.ms, grade: input.grade, interests: input.interests });
       }),
     getWordbooks: (activeId) =>
       resolveMock(config, async () => {
@@ -407,6 +444,7 @@ export function createFetchApiClient({ baseUrl = "/api/v1", fetcher = fetch }: F
     getDailyStory: (input) => request<DailyStory>(getDailyStoryPath(input)),
     getExample: (wordId) => request<WordExample>(`/ai/example/${encodeURIComponent(wordId)}`),
     getMemoryMap: (wordId) => request<MemoryMapModel>(`/ai/memory-map/${encodeURIComponent(wordId)}`),
+    getMistakeCoach: (input) => request<MistakeCoachInsight>("/ai/mistake-coach", { method: "POST", body: JSON.stringify(input) }),
     getWordbooks: (activeId) => request<WordbookCatalog>(`/wordbooks${activeId ? `?active=${encodeURIComponent(activeId)}` : ""}`),
     getWordbookWords: (wordbookId) => request<Word[]>(`/wordbooks/${encodeURIComponent(wordbookId)}/words`),
     requestPhoneCode: (input) => request<PhoneCodeIssueResult>("/auth/phone/code", { method: "POST", body: JSON.stringify(input) }),

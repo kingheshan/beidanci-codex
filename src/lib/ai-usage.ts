@@ -1,4 +1,4 @@
-export type AiUsageFeature = "story" | "example" | "memory-map" | "ocr";
+export type AiUsageFeature = "story" | "example" | "memory-map" | "ocr" | "mistake-coach";
 
 export type AiUsageStatus = "success" | "error" | "fallback";
 

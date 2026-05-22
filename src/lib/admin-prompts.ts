@@ -1,4 +1,4 @@
-export type AdminPromptKey = "example" | "story" | "memory-map" | "ocr";
+export type AdminPromptKey = "example" | "story" | "memory-map" | "ocr" | "mistake-coach";
 
 export type AdminPromptStatus = "online" | "draft" | "ab" | "archived";
 
@@ -80,6 +80,23 @@ export const DEFAULT_ADMIN_PROMPT_VERSIONS: AdminPromptVersionRecord[] = [
     updatedBy: "学习算法"
   },
   {
+    id: "prompt-mistake-coach-v1",
+    key: "mistake-coach",
+    title: "AI 错因教练",
+    version: 1,
+    status: "online",
+    body: [
+      "任务：学生答错后，生成一次可立即执行的错因教练反馈。",
+      "未成年人安全：只诊断学习行为，不羞辱、不贴标签、不推断心理和隐私。",
+      "教研标准：定位具体错因，解释目标词，给 1 个 10 秒内可完成的微练习和下一步动作。"
+    ].join("\n"),
+    safetyRules: ["不羞辱学生", "不做心理诊断", "只给可执行学习建议", "严格 JSON"],
+    outputSchema: '{"title":string,"cause":string,"explanation":string,"memoryTip":string,"microDrill":{"prompt":string,"answer":string},"nextAction":string,"tags":[string]}',
+    notes: "当前线上版本",
+    updatedAt: UPDATED_AT,
+    updatedBy: "AI 教研"
+  },
+  {
     id: "prompt-ocr-v3",
     key: "ocr",
     title: "OCR 解析纠错",
@@ -99,7 +116,7 @@ export const DEFAULT_ADMIN_PROMPT_VERSIONS: AdminPromptVersionRecord[] = [
 ];
 
 export function isAdminPromptKey(value: string): value is AdminPromptKey {
-  return ["example", "story", "memory-map", "ocr"].includes(value);
+  return ["example", "story", "memory-map", "ocr", "mistake-coach"].includes(value);
 }
 
 export function isAdminPromptStatus(value: string): value is AdminPromptStatus {

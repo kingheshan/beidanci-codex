@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { ApiError } from "./api-error";
 import type { GetMistakesInput, SubmitAnswerInput, SubmitAnswerResult } from "./api-client";
 import type { MistakeItem } from "./mistakes-data";
+import { buildFallbackMistakeCoach } from "./mistake-coach";
 import type { StudyModeId } from "./study-data";
 import { findAnyWord } from "./word-search";
 import { createNodePostgresLearningRecordRepository } from "./learning-postgres-repository";
@@ -289,7 +290,8 @@ export async function submitLearningAnswer(input: SubmitAnswerInput, options: Le
     ok: true,
     xpAwarded: 0,
     heartsLost: 1,
-    newMastery: mastery
+    newMastery: mastery,
+    coach: buildFallbackMistakeCoach({ word, mode: input.mode, ms: input.ms })
   };
 }
 

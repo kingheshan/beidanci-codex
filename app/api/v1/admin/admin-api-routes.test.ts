@@ -794,6 +794,11 @@ describe("admin REST API routes", () => {
           title: "K12 例句生成",
           body: expect.stringContaining("未成年人安全"),
           outputSchema: expect.stringContaining('"en"')
+        }),
+        expect.objectContaining({
+          key: "mistake-coach",
+          title: "AI 错因教练",
+          outputSchema: expect.stringContaining("microDrill")
         })
       ])
     );

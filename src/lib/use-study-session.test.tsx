@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { DEFAULT_LEARNING_STATE, useAppStore } from "@/store/app-store";
 import { useStudySession } from "./use-study-session";
@@ -78,5 +78,46 @@ describe("useStudySession", () => {
 
     expect(result.current.results).toHaveLength(1);
     expect(useAppStore.getState().learning.xp).toBe(DEFAULT_LEARNING_STATE.xp + 12);
+  });
+
+  it("attaches mistake coach feedback from answer fallback and AI refresh", async () => {
+    const { result } = renderHook(() =>
+      useStudySession({
+        mode: "mc",
+        words: sampleWords,
+        submitAnswer: async () => ({
+          ok: true,
+          xpAwarded: 0,
+          heartsLost: 1,
+          newMastery: 0.42,
+          coach: {
+            title: "释义选择错因教练",
+            cause: "fallback cause",
+            explanation: "fallback explanation",
+            memoryTip: "fallback tip",
+            microDrill: { prompt: "fallback prompt", answer: "fallback answer" },
+            nextAction: "fallback action",
+            tags: ["fallback"],
+            source: "fallback"
+          }
+        }),
+        getMistakeCoach: async () => ({
+          title: "AI 错因教练",
+          cause: "ai cause",
+          explanation: "ai explanation",
+          memoryTip: "ai tip",
+          microDrill: { prompt: "ai prompt", answer: "ai answer" },
+          nextAction: "ai action",
+          tags: ["ai"],
+          source: "ai"
+        })
+      })
+    );
+
+    act(() => result.current.submit(false));
+
+    await waitFor(() => {
+      expect(result.current.currentCoach).toMatchObject({ title: "AI 错因教练", source: "ai" });
+    });
   });
 });

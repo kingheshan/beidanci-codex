@@ -7,6 +7,7 @@ import type {
   FetchApiClientOptions,
   GetMistakesInput,
   LogoutResult,
+  MistakeCoachRequestInput,
   SubmitAnswerInput,
   SubmitAnswerResult,
   TodayPlan,
@@ -17,6 +18,7 @@ import type { ExperienceConfig } from "./experience-config";
 import type { LearningPlanConfig } from "./learning-plan-config";
 import type { LearningWorkflowConfig } from "./learning-workflow-config";
 import type { MemoryMapModel } from "./memory-map-data";
+import type { MistakeCoachInsight } from "./mistake-coach";
 import type { MistakeItem } from "./mistakes-data";
 import type { OcrResult } from "./ocr-data";
 import type { OnboardingConfig } from "./onboarding-config";
@@ -117,6 +119,7 @@ export function createFetchApiClient({ baseUrl = "/api/v1", fetcher = fetch }: F
     getDailyStory: (input) => request<DailyStory>(getDailyStoryPath(input)),
     getExample: (wordId) => request<WordExample>(`/ai/example/${encodeURIComponent(wordId)}`),
     getMemoryMap: (wordId) => request<MemoryMapModel>(`/ai/memory-map/${encodeURIComponent(wordId)}`),
+    getMistakeCoach: (input: MistakeCoachRequestInput) => request<MistakeCoachInsight>("/ai/mistake-coach", { method: "POST", body: JSON.stringify(input) }),
     getWordbooks: (activeId) => request<WordbookCatalog>(`/wordbooks${activeId ? `?active=${encodeURIComponent(activeId)}` : ""}`),
     getWordbookWords: (wordbookId: WordbookId) => request<Word[]>(`/wordbooks/${encodeURIComponent(wordbookId)}/words`),
     requestPhoneCode: (input: PhoneCodeIssueInput) => request<PhoneCodeIssueResult>("/auth/phone/code", { method: "POST", body: JSON.stringify(input) }),

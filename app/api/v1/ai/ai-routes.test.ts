@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DAILY_STORY } from "@/lib/story-data";
+import { POST as postMistakeCoach } from "./mistake-coach/route";
 import { GET as getStory } from "./story/today/route";
 
 function deepseekResponse(content: unknown) {
@@ -41,5 +42,37 @@ describe("AI API routes", () => {
     expect(payload.messages[1].content).toContain("hypothesis");
     expect(payload.messages[1].content).toContain("archaeology");
     expect(payload.messages[1].content).not.toContain("persist");
+  });
+
+  it("uses DeepSeek for mistake coaching and keeps the prompt structured", async () => {
+    process.env.DEEPSEEK_API_KEY = "test-key";
+    process.env.DEEPSEEK_MODEL = "deepseek-chat";
+    const fetcher = vi.fn<typeof fetch>(async () =>
+      deepseekResponse({
+        title: "释义选择错因教练",
+        cause: "学生把中文释义当成孤立标签，缺少例句语境。",
+        explanation: "persist 表示遇到困难仍坚持做某事。",
+        memoryTip: "一直站住，就是 persist。",
+        microDrill: { prompt: "补全：I ____ in reading every day.", answer: "persist" },
+        nextAction: "读例句后再选一次。",
+        tags: ["释义选择", "错因定位"]
+      })
+    );
+    vi.stubGlobal("fetch", fetcher);
+
+    const response = await postMistakeCoach(
+      new Request("http://localhost/api/v1/ai/mistake-coach", {
+        method: "POST",
+        body: JSON.stringify({ wordId: "w1", mode: "mc", selectedWordId: "w2", ms: 1300, grade: "初三", interests: ["足球"] })
+      })
+    );
+    const body = (await response.json()) as { source: string; cause: string };
+    const payload = JSON.parse(String(fetcher.mock.calls[0][1]?.body)) as { messages: Array<{ role: string; content: string }> };
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({ source: "ai", cause: "学生把中文释义当成孤立标签，缺少例句语境。" });
+    expect(payload.messages[1].content).toContain("任务：生成一次 AI 错因教练反馈");
+    expect(payload.messages[1].content).toContain("学生误选词：ambition");
+    expect(payload.messages[1].content).toContain("microDrill");
   });
 });

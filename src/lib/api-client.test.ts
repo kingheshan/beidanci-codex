@@ -33,6 +33,10 @@ describe("api client adapters", () => {
     await expect(client.getExample("w1")).resolves.toMatchObject({ en: expect.stringContaining("persist") });
     await expect(client.getMemoryMap("w1")).resolves.toMatchObject({ word: expect.objectContaining({ id: "w1" }) });
     await expect(client.getMemoryMap("wb-hypothesis")).resolves.toMatchObject({ word: expect.objectContaining({ word: "hypothesis" }) });
+    await expect(client.getMistakeCoach({ wordId: "w1", mode: "mc", ms: 1200 })).resolves.toMatchObject({
+      title: "释义选择错因教练",
+      source: "fallback"
+    });
     await expect(client.getWordbooks("ielts")).resolves.toMatchObject({ active: expect.objectContaining({ id: "ielts" }) });
     await expect(client.getWordbookWords("toefl")).resolves.toEqual(expect.arrayContaining([expect.objectContaining({ word: "hypothesis" })]));
     await expect(client.requestPhoneCode({ phone: "13800138000" })).resolves.toMatchObject({ ok: true, devCode: "123456" });
@@ -53,7 +57,11 @@ describe("api client adapters", () => {
     });
     await expect(client.submitAnswer({ wordId: "w1", mode: "mc", correct: false, ms: 1200 })).resolves.toMatchObject({
       xpAwarded: 0,
-      heartsLost: 1
+      heartsLost: 1,
+      coach: expect.objectContaining({
+        title: "释义选择错因教练",
+        source: "fallback"
+      })
     });
   });
 
@@ -69,6 +77,7 @@ describe("api client adapters", () => {
     const fetcher = vi.fn<typeof fetch>(async (input, init) => {
       const url = String(input);
       if (url.includes("/answers")) return jsonResponse({ ok: true, xpAwarded: 12, heartsLost: 0, newMastery: 0.8 });
+      if (url.includes("/ai/mistake-coach")) return jsonResponse({ title: "AI 错因教练", cause: "释义混淆", explanation: "解释", memoryTip: "记法", microDrill: { prompt: "练习", answer: "答案" }, nextAction: "再练一次", tags: ["错因"], source: "ai" });
       if (url.includes("/mistakes")) return jsonResponse([]);
       if (url.includes("/auth/session")) return jsonResponse({ token: "server-token", method: "phone", user: { id: "u", name: "u", avatar: "u" } });
       if (url.includes("/auth/phone/code")) return jsonResponse({ ok: true, expiresAt: "2026-05-21T08:00:00.000Z", cooldownSeconds: 60 });
@@ -80,6 +89,7 @@ describe("api client adapters", () => {
     const client = createFetchApiClient({ baseUrl: "https://api.test/v1", fetcher });
 
     await client.submitAnswer({ wordId: "w1", mode: "spell", correct: true, ms: 640 });
+    await client.getMistakeCoach({ wordId: "w1", mode: "spell", ms: 640, grade: "初三", interests: ["sports"] });
     await client.getProductConfig();
     await client.getOnboardingConfig();
     await client.getStudyConfig();
@@ -99,6 +109,13 @@ describe("api client adapters", () => {
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ wordId: "w1", mode: "spell", correct: true, ms: 640 })
+      })
+    );
+    expect(fetcher).toHaveBeenCalledWith(
+      "https://api.test/v1/ai/mistake-coach",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ wordId: "w1", mode: "spell", ms: 640, grade: "初三", interests: ["sports"] })
       })
     );
     expect(fetcher).toHaveBeenCalledWith("https://api.test/v1/config", expect.objectContaining({ method: "GET" }));

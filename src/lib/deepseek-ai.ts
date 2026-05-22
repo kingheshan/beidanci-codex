@@ -1,4 +1,5 @@
 import { getMemoryMap, type MemoryMapModel } from "./memory-map-data";
+import { normalizeMistakeCoach, type MistakeCoachInput, type MistakeCoachInsight } from "./mistake-coach";
 import { DAILY_STORY, type DailyStory } from "./story-data";
 import type { Word, WordExample } from "./words";
 import { createAiUsageEvent, recordAiUsageEvent, type AiUsageEvent, type AiUsageFeature, type AiUsagePricing } from "./ai-usage";
@@ -49,6 +50,13 @@ export type ExamplePromptInput = {
 export type MemoryMapPromptInput = {
   word: Word;
 };
+
+export type MistakeCoachPromptInput = Required<Pick<MistakeCoachInput, "word" | "mode">> &
+  Pick<MistakeCoachInput, "selectedWord"> & {
+    ms: number;
+    grade: string;
+    interests: string[];
+  };
 
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const DEFAULT_MODEL = "deepseek-chat";
@@ -107,6 +115,30 @@ export function createMemoryMapPrompt({ word }: MemoryMapPromptInput) {
     "真实性要求：不要编造不存在的词根、词源或派生词；不确定时优先给同义/反义关系。",
     "再给出适合初高中学生的 rootClue、memoryTip；memoryTip 必须 18 字以内、可直接显示在移动端。",
     '严格返回 JSON：{"related":[{"word":string,"label":string,"kind":"derive"|"syn"|"ant"}],"rootClue":string,"memoryTip":string}'
+  ].join("\n");
+}
+
+export function createMistakeCoachPrompt({ word, mode, selectedWord, ms, grade, interests }: MistakeCoachPromptInput) {
+  const selected = selectedWord && selectedWord.id !== word.id ? `${selectedWord.word}(${selectedWord.pos}, ${selectedWord.cn})` : "无";
+  const examples = word.examples.map((example) => `${example.en} / ${example.cn}`).join("；");
+
+  return [
+    "任务：生成一次 AI 错因教练反馈，用于学生答错后立即显示。",
+    `学生年级：${grade}`,
+    `兴趣：${interests.length ? interests.join("、") : "校园生活"}`,
+    `学习模式：${mode}`,
+    `答题耗时：${ms}ms`,
+    `目标词：${word.word}`,
+    `词性/释义：${word.pos} ${word.cn}；${word.cnLong}`,
+    `词根/记忆线索：${word.etym}`,
+    `学生误选词：${selected}`,
+    `可用例句：${examples}`,
+    "教研要求：先判断错因类型，再给 1 个可执行的微练习；语气像耐心老师，不羞辱、不吓唬、不贴负面标签。",
+    "诊断要求：cause 必须指出具体认知原因，例如释义混淆、音义未绑定、拼写分块弱、语境线索未使用、图像联想不稳定。",
+    "解释要求：explanation 用中文解释目标词，不超过 75 字；memoryTip 不超过 22 字；nextAction 是学生下一步动作，不超过 30 字。",
+    "微练习要求：microDrill.prompt 必须能在 10 秒内完成；answer 给标准答案。",
+    "安全要求：不输出心理诊断，不推断隐私，不使用成人/暴力/政治/广告内容。",
+    '严格返回 JSON：{"title":string,"cause":string,"explanation":string,"memoryTip":string,"microDrill":{"prompt":string,"answer":string},"nextAction":string,"tags":[string]}'
   ].join("\n");
 }
 
@@ -282,6 +314,10 @@ export function createDeepseekAiClient({ apiKey, fetcher = fetch, model = DEFAUL
     generateMemoryMap: async (input: MemoryMapPromptInput) => {
       const generated = await completeJson<{ related?: Word["related"]; rootClue?: string; memoryTip?: string }>(createMemoryMapPrompt(input), "memory-map");
       return mergeMemoryMap(input.word, generated);
+    },
+    generateMistakeCoach: async (input: MistakeCoachPromptInput): Promise<MistakeCoachInsight> => {
+      const generated = await completeJson<Partial<MistakeCoachInsight>>(createMistakeCoachPrompt(input), "mistake-coach");
+      return normalizeMistakeCoach(generated, "ai");
     }
   };
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { SubmitAnswerInput } from "./api-client";
+import type { MistakeCoachRequestInput, SubmitAnswerInput, SubmitAnswerResult } from "./api-client";
 import { trackStudyCompleted } from "./analytics";
+import type { MistakeCoachInsight } from "./mistake-coach";
 import type { LastStudyResult, StudyResultItem } from "@/store/app-store";
 import { useAppStore } from "@/store/app-store";
 import type { StudyModeId } from "./study-data";
@@ -14,7 +15,9 @@ export type StudySessionOptions = {
   mode: StudyModeId;
   words: Word[];
   wordPool?: Word[];
-  submitAnswer?: (input: SubmitAnswerInput) => Promise<unknown>;
+  submitAnswer?: (input: SubmitAnswerInput) => Promise<SubmitAnswerResult>;
+  getMistakeCoach?: (input: MistakeCoachRequestInput) => Promise<MistakeCoachInsight>;
+  coachContext?: Pick<MistakeCoachRequestInput, "grade" | "interests">;
 };
 
 export type StudySession = {
@@ -26,6 +29,7 @@ export type StudySession = {
   results: StudyResultItem[];
   wordPool: Word[];
   shake: boolean;
+  currentCoach: MistakeCoachInsight | null;
   correctCount: number;
   hearts: number;
   submit: (correct: boolean) => void;
@@ -33,10 +37,11 @@ export type StudySession = {
   restart: () => void;
 };
 
-export function useStudySession({ mode, words, wordPool, submitAnswer }: StudySessionOptions): StudySession {
+export function useStudySession({ mode, words, wordPool, submitAnswer, getMistakeCoach, coachContext }: StudySessionOptions): StudySession {
   const [idx, setIdx] = useState(0);
   const [phase, setPhase] = useState<StudyPhase>(words.length ? "asking" : "done");
   const [results, setResults] = useState<StudyResultItem[]>([]);
+  const [coaches, setCoaches] = useState<Record<string, MistakeCoachInsight>>({});
   const [shake, setShake] = useState(false);
   const phaseRef = useRef<StudyPhase>(words.length ? "asking" : "done");
   const startedAtRef = useRef(Date.now());
@@ -50,6 +55,7 @@ export function useStudySession({ mode, words, wordPool, submitAnswer }: StudySe
   const total = words.length;
   const current = words[idx] ?? null;
   const optionPool = wordPool ?? words;
+  const currentCoach = current ? coaches[current.id] ?? null : null;
 
   useEffect(() => {
     startedAtRef.current = Date.now();
@@ -94,16 +100,38 @@ export function useStudySession({ mode, words, wordPool, submitAnswer }: StudySe
         mode,
         correct,
         ms
-      }).catch(() => null);
+      })
+        .then((result) => {
+          if (!correct && result?.coach) {
+            setCoaches((existing) => (existing[current.id]?.source === "ai" ? existing : { ...existing, [current.id]: result.coach as MistakeCoachInsight }));
+          }
+
+          return result;
+        })
+        .catch(() => null);
       if (pending) pendingSubmissionsRef.current.push(pending);
 
       if (!correct) {
+        const coachPending = getMistakeCoach?.({
+          wordId: current.id,
+          mode,
+          ms,
+          grade: coachContext?.grade,
+          interests: coachContext?.interests
+        })
+          .then((coach) => {
+            setCoaches((existing) => ({ ...existing, [current.id]: coach }));
+            return coach;
+          })
+          .catch(() => null);
+        void coachPending;
+
         setShake(true);
         if (shakeTimerRef.current) window.clearTimeout(shakeTimerRef.current);
         shakeTimerRef.current = window.setTimeout(() => setShake(false), 500);
       }
     },
-    [applyAnswerReward, current, mode, submitAnswer]
+    [applyAnswerReward, coachContext?.grade, coachContext?.interests, current, getMistakeCoach, mode, submitAnswer]
   );
 
   const next = useCallback(async () => {
@@ -136,6 +164,7 @@ export function useStudySession({ mode, words, wordPool, submitAnswer }: StudySe
   const restart = useCallback(() => {
     setIdx(0);
     setResults([]);
+    setCoaches({});
     setShake(false);
     pendingSubmissionsRef.current = [];
     setSessionPhase(words.length ? "asking" : "done");
@@ -150,6 +179,7 @@ export function useStudySession({ mode, words, wordPool, submitAnswer }: StudySe
     results,
     wordPool: optionPool,
     shake,
+    currentCoach,
     correctCount: results.filter((result) => result.correct).length,
     hearts,
     submit,

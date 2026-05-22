@@ -41,6 +41,21 @@ export const DEFAULT_ADMIN_AI_USAGE_ALERTS: AdminAiUsageAlertRecord[] = [
     updatedBy: "system"
   },
   {
+    id: "ai-latency-mistake-coach-p95",
+    kind: "latency",
+    title: "错因教练 P95 延迟观察",
+    feature: "mistake-coach",
+    severity: "medium",
+    status: "open",
+    threshold: 1800,
+    currentValue: 2140,
+    unit: "ms",
+    recommendation: "答题反馈先展示教研兜底，DeepSeek 结果异步刷新。",
+    owner: "AI 平台",
+    updatedAt: "2026-05-21T09:50:00.000Z",
+    updatedBy: "system"
+  },
+  {
     id: "ai-latency-story-p95",
     kind: "latency",
     title: "故事生成 P95 延迟偏高",
@@ -129,7 +144,7 @@ function isAdminAiUsageAlertKind(value: unknown): value is AdminAiUsageAlertKind
 }
 
 function isAdminAiUsageAlertFeature(value: unknown): value is AdminAiUsageAlertFeature {
-  return value === "all" || value === "story" || value === "example" || value === "memory-map" || value === "ocr";
+  return value === "all" || value === "story" || value === "example" || value === "memory-map" || value === "ocr" || value === "mistake-coach";
 }
 
 function isAdminAiUsageAlertSeverity(value: unknown): value is AdminAiUsageAlertSeverity {

@@ -3,6 +3,7 @@ import {
   createAiGenerationContextFromRequest,
   createDeepseekAiClient,
   createExamplePrompt,
+  createMistakeCoachPrompt,
   createMemoryMapPrompt,
   createStoryPrompt,
   DEEPSEEK_SYSTEM_PROMPT,
@@ -32,7 +33,7 @@ function deepseekResponse(content: unknown) {
 }
 
 describe("deepseek ai client", () => {
-  it("builds professional K12 prompts for story, example, and memory map generation", () => {
+  it("builds professional K12 prompts for story, example, memory map, and mistake coaching", () => {
     expect(createStoryPrompt({ words: STUDY_WORDS.slice(0, 3), grade: "初三", interests: ["足球", "动漫"] })).toContain("中国 K12");
     expect(createStoryPrompt({ words: STUDY_WORDS.slice(0, 3), grade: "初三", interests: ["足球"] })).toContain("严格返回 JSON");
     expect(createStoryPrompt({ words: STUDY_WORDS.slice(0, 3), grade: "初三", interests: ["足球"] })).toContain("wordId 必须来自给定清单");
@@ -41,6 +42,9 @@ describe("deepseek ai client", () => {
     expect(createExamplePrompt({ word: STUDY_WORDS[0], grade: "初三", interests: ["足球"] })).toContain("使用目标词的原形或自然屈折形式");
     expect(createMemoryMapPrompt({ word: STUDY_WORDS[0] })).toContain("派生词");
     expect(createMemoryMapPrompt({ word: STUDY_WORDS[0] })).toContain("不要编造不存在的词根");
+    expect(createMistakeCoachPrompt({ word: STUDY_WORDS[0], mode: "mc", ms: 1400, grade: "初三", interests: ["足球"] })).toContain("错因教练");
+    expect(createMistakeCoachPrompt({ word: STUDY_WORDS[0], mode: "mc", ms: 1400, grade: "初三", interests: ["足球"] })).toContain("不羞辱");
+    expect(createMistakeCoachPrompt({ word: STUDY_WORDS[0], mode: "mc", ms: 1400, grade: "初三", interests: ["足球"] })).toContain("microDrill");
     expect(DEEPSEEK_SYSTEM_PROMPT).toContain("未成年人");
     expect(DEEPSEEK_SYSTEM_PROMPT).toContain("严格 JSON");
   });
@@ -91,6 +95,38 @@ describe("deepseek ai client", () => {
       model: "deepseek-chat",
       temperature: 0.45,
       response_format: { type: "json_object" }
+    });
+  });
+
+  it("generates normalized mistake coaching feedback", async () => {
+    const fetcher = vi.fn<typeof fetch>(async () =>
+      deepseekResponse({
+        title: "释义选择错因教练",
+        cause: "你把中文释义当成孤立标签，缺少例句语境。",
+        explanation: "persist 表示遇到困难仍坚持做某事。",
+        memoryTip: "一直站住，就是 persist。",
+        microDrill: {
+          prompt: "补全：I ____ in reading every day.",
+          answer: "persist"
+        },
+        nextAction: "读例句后再选一次。",
+        tags: ["释义选择", "错因定位"]
+      })
+    );
+    const client = createDeepseekAiClient({ apiKey: "test-key", fetcher });
+
+    await expect(client.generateMistakeCoach({ word: STUDY_WORDS[0], mode: "mc", ms: 1200, grade: "初三", interests: ["足球"] })).resolves.toEqual({
+      title: "释义选择错因教练",
+      cause: "你把中文释义当成孤立标签，缺少例句语境。",
+      explanation: "persist 表示遇到困难仍坚持做某事。",
+      memoryTip: "一直站住，就是 persist。",
+      microDrill: {
+        prompt: "补全：I ____ in reading every day.",
+        answer: "persist"
+      },
+      nextAction: "读例句后再选一次。",
+      tags: ["释义选择", "错因定位"],
+      source: "ai"
     });
   });
 

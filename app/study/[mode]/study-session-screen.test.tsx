@@ -56,6 +56,51 @@ describe("StudySessionScreen", () => {
     );
   });
 
+  it("shows AI mistake coaching after a wrong answer", async () => {
+    const user = userEvent.setup();
+    const submitAnswer = vi.fn().mockResolvedValue({
+      ok: true,
+      xpAwarded: 0,
+      heartsLost: 1,
+      newMastery: 0.42,
+      coach: {
+        title: "释义选择错因教练",
+        cause: "你把中文释义当成孤立标签。",
+        explanation: "persist 表示坚持做某事。",
+        memoryTip: "一直站住，就是 persist。",
+        microDrill: { prompt: "补全：I ____ in reading every day.", answer: "persist" },
+        nextAction: "读例句后再选一次。",
+        tags: ["错因"],
+        source: "fallback"
+      }
+    });
+    const getMistakeCoach = vi.fn().mockResolvedValue({
+      title: "AI 错因教练",
+      cause: "AI 判断你被相近中文释义干扰。",
+      explanation: "persist 表示坚持做某事。",
+      memoryTip: "一直站住，就是 persist。",
+      microDrill: { prompt: "补全：I ____ in reading every day.", answer: "persist" },
+      nextAction: "读例句后再选一次。",
+      tags: ["错因"],
+      source: "ai"
+    });
+
+    render(<StudySessionScreen mode="mc" apiClient={{ submitAnswer, getMistakeCoach }} />);
+
+    await user.click(screen.getByRole("button", { name: /ambition 抱负/ }));
+
+    expect(await screen.findByText("没关系，记住这个")).toBeInTheDocument();
+    expect(await screen.findByText("AI 错因教练")).toBeInTheDocument();
+    expect(await screen.findByText("AI 判断你被相近中文释义干扰。")).toBeInTheDocument();
+    expect(getMistakeCoach).toHaveBeenCalledWith(
+      expect.objectContaining({
+        wordId: "w1",
+        mode: "mc",
+        ms: expect.any(Number)
+      })
+    );
+  });
+
   it("renders the six Gate 4 mode surfaces", () => {
     const expectations = [
       ["mc", "下面哪个词意为"],
