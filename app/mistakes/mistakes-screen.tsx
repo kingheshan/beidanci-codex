@@ -14,7 +14,8 @@ import {
 import { ProductSidebar } from "@/components/product-navigation";
 import { Card, CTA, ProgressBar, ProgressRing, Skeleton, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
-import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
+import type { ApiClient } from "@/lib/api-client";
+import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { type MistakeDefaultStats } from "@/lib/learning-workflow-config";
 import { hydrateMistake, MISTAKE_FILTERS, modeLabel, type MistakeFilterId, type MistakeItem } from "@/lib/mistakes-data";
 import { useApiQuery } from "@/lib/use-api-query";

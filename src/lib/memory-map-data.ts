@@ -1,4 +1,4 @@
-import { findAnyWord } from "@/lib/word-search";
+import { findClientWord } from "@/lib/client-wordbook-preview";
 import { STUDY_WORDS, type RelatedWord, type Word } from "@/lib/words";
 
 export type MemoryRelationKind = RelatedWord["kind"] | "center";
@@ -58,7 +58,7 @@ function relationClue(relation: RelatedWord, word: Word) {
 }
 
 export function getMemoryMap(wordId: string): MemoryMapModel {
-  const word = findAnyWord(wordId) ?? STUDY_WORDS[0];
+  const word = findClientWord(wordId) ?? STUDY_WORDS[0];
   const nodes = (word.related ?? []).slice(0, NODE_POSITIONS.length).map((relation, index) => ({
     id: `${word.id}-${relation.kind}-${index}`,
     word: relation.word,

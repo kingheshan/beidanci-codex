@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { ApiError } from "./api-client";
+import { ApiError } from "./api-error";
 import {
   findProPlan,
   type BillingChannel,

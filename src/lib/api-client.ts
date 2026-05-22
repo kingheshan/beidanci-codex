@@ -1,4 +1,5 @@
 import type { MemoryMapModel } from "./memory-map-data";
+import { ApiError, type ApiErrorOptions } from "./api-error";
 import { getExperienceConfig, type ExperienceConfig } from "./experience-config";
 import { getLearningPlanConfig, type LearningPlanConfig } from "./learning-plan-config";
 import { getLearningWorkflowConfig, type LearningWorkflowConfig } from "./learning-workflow-config";
@@ -114,22 +115,7 @@ export type ApiClient = {
   logout: () => Promise<LogoutResult>;
 };
 
-export type ApiErrorOptions = {
-  status?: number;
-  code?: string;
-};
-
-export class ApiError extends Error {
-  status?: number;
-  code?: string;
-
-  constructor(message: string, options: ApiErrorOptions = {}) {
-    super(message);
-    this.name = "ApiError";
-    this.status = options.status;
-    this.code = options.code;
-  }
-}
+export { ApiError, type ApiErrorOptions };
 
 export type MockApiClientOptions = {
   delayMs?: number;

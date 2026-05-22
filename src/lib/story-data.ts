@@ -1,4 +1,4 @@
-import { findAnyWord } from "@/lib/word-search";
+import { findClientWord } from "@/lib/client-wordbook-preview";
 import { STUDY_WORDS, type Word } from "@/lib/words";
 
 export type StoryToken =
@@ -78,11 +78,11 @@ export function getStoryWords(story: DailyStory = DAILY_STORY): Word[] {
   }
 
   return Array.from(ids)
-    .map((id) => findAnyWord(id))
+    .map((id) => findClientWord(id))
     .filter(Boolean)
     .slice(0, 5) as Word[];
 }
 
 export function findStoryWord(wordId: string) {
-  return findAnyWord(wordId) ?? STUDY_WORDS[0];
+  return findClientWord(wordId) ?? STUDY_WORDS[0];
 }

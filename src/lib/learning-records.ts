@@ -1,6 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { ApiError, type GetMistakesInput, type SubmitAnswerInput, type SubmitAnswerResult } from "./api-client";
+import { ApiError } from "./api-error";
+import type { GetMistakesInput, SubmitAnswerInput, SubmitAnswerResult } from "./api-client";
 import type { MistakeItem } from "./mistakes-data";
 import type { StudyModeId } from "./study-data";
 import { findAnyWord } from "./word-search";

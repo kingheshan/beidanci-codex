@@ -1,7 +1,6 @@
 "use client";
 
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
 import { BrainIcon, CheckIcon, FlameIcon, GemIcon, HeartIcon, XIcon } from "./icons";
 import { clamp01 } from "@/lib/theme";
 
@@ -12,7 +11,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export type CTAProps = Omit<HTMLMotionProps<"button">, "children" | "color"> & {
+export type CTAProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "color"> & {
   children: ReactNode;
   color?: string;
   textColor?: string;
@@ -40,11 +39,10 @@ export function CTA({
   };
 
   return (
-    <motion.button
-      whileTap={disabled ? undefined : { y: 2 }}
+    <button
       disabled={disabled}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-[14px] border-0 px-5 font-display font-bold uppercase shadow-[0_4px_0_rgba(0,0,0,.18)] transition disabled:cursor-not-allowed disabled:bg-[var(--c-ink-faint)] disabled:shadow-none",
+        "inline-flex items-center justify-center gap-2 rounded-[14px] border-0 px-5 font-display font-bold uppercase shadow-[0_4px_0_rgba(0,0,0,.18)] transition-transform active:translate-y-0.5 disabled:cursor-not-allowed disabled:bg-[var(--c-ink-faint)] disabled:shadow-none disabled:active:translate-y-0",
         full && "w-full",
         sizes[size],
         className
@@ -54,7 +52,7 @@ export function CTA({
     >
       {icon}
       <span>{children}</span>
-    </motion.button>
+    </button>
   );
 }
 

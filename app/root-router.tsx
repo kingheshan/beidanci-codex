@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
+import type { ApiClient } from "@/lib/api-client";
+import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { useAppStore } from "@/store/app-store";
 
 type RootRouterProps = {

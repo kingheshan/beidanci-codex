@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { createFetchApiClient, type ApiClient, type ApiError } from "./api-client";
+import type { ApiClient } from "./api-client";
+import type { ApiError } from "./api-error";
+import { createFetchApiClient } from "./fetch-api-client";
 import { getAuthConfig, type AuthConfig } from "./auth-config";
 import { getExperienceConfig, type ExperienceConfig } from "./experience-config";
 import { getLearningPlanConfig, type LearningPlanConfig } from "./learning-plan-config";

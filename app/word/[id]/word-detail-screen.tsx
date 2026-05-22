@@ -21,7 +21,8 @@ import {
 } from "@/components/icons";
 import { CTA, Card, GemPill, ProgressRing, Skeleton, StreakChip, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
-import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
+import type { ApiClient } from "@/lib/api-client";
+import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { DASHBOARD_DATE_LABEL } from "@/lib/dashboard-data";
 import { formatExperienceTemplate, type ExperienceConfig } from "@/lib/experience-config";
 import type { ReviewQueueItem } from "@/lib/review-data";

@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { CheckIcon, ChevronLeftIcon, SpeakerIcon, SparkleIcon, XIcon } from "@/components/icons";
 import { CTA, ChoiceButton, HeartPill, ProgressBar, Tag } from "@/components/ui";
-import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
+import type { ApiClient } from "@/lib/api-client";
+import { findClientWord, getClientWordbookWords } from "@/lib/client-wordbook-preview";
+import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { STUDY_MODES, type StudyModeId } from "@/lib/study-data";
 import { useStudySession, type StudySession } from "@/lib/use-study-session";
-import { findAnyWord } from "@/lib/word-search";
-import { getWordbookWords } from "@/lib/wordbooks";
 import type { ImageConcept, Word } from "@/lib/words";
 import { useAppStore } from "@/store/app-store";
 
@@ -516,7 +516,7 @@ function uniqueWords(words: Word[]) {
 
 function resolveWordIds(wordIds: string[] | undefined) {
   if (!wordIds?.length) return [];
-  return uniqueWords(wordIds.map((wordId) => findAnyWord(wordId)).filter((word): word is Word => Boolean(word)));
+  return uniqueWords(wordIds.map((wordId) => findClientWord(wordId)).filter((word): word is Word => Boolean(word)));
 }
 
 export function StudySessionScreen({ mode, wordIds, sourceLabel, apiClient }: StudySessionScreenProps) {
@@ -524,7 +524,7 @@ export function StudySessionScreen({ mode, wordIds, sourceLabel, apiClient }: St
   const modeMeta = STUDY_MODES.find((item) => item.id === mode) ?? STUDY_MODES[0];
   const activeWordbookId = useAppStore((state) => state.onboarding.wordbookId);
   const [toast, setToast] = useState<string | null>(null);
-  const activeWordbookWords = useMemo(() => getWordbookWords(activeWordbookId), [activeWordbookId]);
+  const activeWordbookWords = useMemo(() => getClientWordbookWords(activeWordbookId), [activeWordbookId]);
   const queuedWords = useMemo(() => resolveWordIds(wordIds), [wordIds]);
   const words = useMemo(
     () => (queuedWords.length > 0 ? queuedWords : activeWordbookWords.slice(0, 6)),

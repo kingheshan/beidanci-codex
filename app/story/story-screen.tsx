@@ -22,7 +22,8 @@ import {
 import { Card, ChoiceButton, CTA, GemPill, ProgressBar, Skeleton, StreakChip, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
 import { DASHBOARD_DATE_LABEL } from "@/lib/dashboard-data";
-import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
+import type { ApiClient } from "@/lib/api-client";
+import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { formatExperienceTemplate } from "@/lib/experience-config";
 import { findStoryWord, getStoryWords, type DailyStory, type StoryOption } from "@/lib/story-data";
 import { useApiQuery } from "@/lib/use-api-query";

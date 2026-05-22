@@ -1,6 +1,6 @@
 import { extractAuthTokenFromRequest, verifyAuthSessionToken } from "@/lib/auth-server";
 import { createProCheckout } from "@/lib/billing";
-import { ApiError } from "@/lib/api-client";
+import { ApiError } from "@/lib/api-error";
 import { apiError, parseJsonObject, withApiErrors } from "@/lib/mock-api-route-helpers";
 import { isBillingChannel, isProPlanId } from "@/lib/pro-data";
 

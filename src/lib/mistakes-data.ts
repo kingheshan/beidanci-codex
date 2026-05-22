@@ -1,6 +1,6 @@
 import { DEFAULT_MISTAKE_STATS, MISTAKE_FILTERS, MISTAKE_MODE_META, type MistakeFilterId } from "./learning-workflow-config";
 import type { StudyModeId } from "./study-config";
-import { findAnyWord } from "./word-search";
+import { findClientWord } from "./client-wordbook-preview";
 
 export { MISTAKE_FILTERS };
 export type { MistakeFilterId };
@@ -44,6 +44,6 @@ export function modeLabel(mode: StudyModeId) {
 }
 
 export function hydrateMistake(item: MistakeItem) {
-  const word = findAnyWord(item.wordId);
+  const word = findClientWord(item.wordId);
   return word ? { ...item, word } : null;
 }

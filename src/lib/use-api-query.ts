@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ApiError } from "./api-client";
+import { ApiError } from "./api-error";
 
 export type ApiQueryState<T> = {
   data: T | null;

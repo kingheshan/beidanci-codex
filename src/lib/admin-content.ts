@@ -1,4 +1,4 @@
-import { getWordbook, listWordbooks, type WordbookId } from "./wordbooks";
+import { getWordbook, listWordbooks, type WordbookId } from "./wordbook-catalog";
 
 export type AdminWordbookStatus = "published" | "gray" | "draft";
 export type AdminVocabularyIssueKind = "definition" | "phonetic" | "example" | "image" | "duplicate";

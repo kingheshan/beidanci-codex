@@ -20,7 +20,8 @@ import {
 import { MobileTabBar } from "@/components/mobile-tab-bar";
 import { Card, ProgressBar, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
-import { createFetchApiClient, type ApiClient } from "@/lib/api-client";
+import type { ApiClient } from "@/lib/api-client";
+import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { formatExperienceTemplate, type ExperienceConfig } from "@/lib/experience-config";
 import { PROFILE_BADGES, PROFILE_BOOKS, PROFILE_LINKS, PROFILE_SUMMARY } from "@/lib/profile-data";
 import { useExperienceConfig } from "@/lib/use-remote-config";

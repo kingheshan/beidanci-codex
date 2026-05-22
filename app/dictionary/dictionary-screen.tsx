@@ -19,12 +19,13 @@ import {
 } from "@/components/icons";
 import { Wordy } from "@/components/wordy";
 import { Card, GemPill, ProgressBar, StreakChip, Tag } from "@/components/ui";
+import { getClientWordbookWords } from "@/lib/client-wordbook-preview";
 import { DASHBOARD_DATE_LABEL } from "@/lib/dashboard-data";
 import { DICTIONARY_OVERVIEW } from "@/lib/dictionary-data";
 import { formatExperienceTemplate, type ExperienceConfig } from "@/lib/experience-config";
 import { useExperienceConfig } from "@/lib/use-remote-config";
 import type { Word } from "@/lib/words";
-import { getActiveWordbook, getWordbookWords, listWordbooks, type Wordbook, type WordbookId } from "@/lib/wordbooks";
+import { getActiveWordbook, listWordbooks, type Wordbook, type WordbookId } from "@/lib/wordbook-catalog";
 import { useAppStore } from "@/store/app-store";
 
 type SidebarItem = {
@@ -314,7 +315,7 @@ export function DictionaryScreen() {
   const { config: experienceConfig } = useExperienceConfig();
   const config = experienceConfig.dictionary;
   const activeBook = getActiveWordbook(activeWordbookId);
-  const wordbookWords = useMemo(() => getWordbookWords(activeBook.id), [activeBook.id]);
+  const wordbookWords = useMemo(() => getClientWordbookWords(activeBook.id), [activeBook.id]);
 
   useEffect(() => {
     setHydrated(true);
@@ -348,7 +349,7 @@ export function DictionaryScreen() {
   });
   const wordsSummary = formatExperienceTemplate(config.wordsSummaryTemplate, {
     visible: visibleWords.length,
-    total: filteredWords.length
+    total: query ? filteredWords.length : activeBook.total
   });
 
   const navigate = (href: string) => router.push(href);

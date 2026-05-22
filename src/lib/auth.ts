@@ -1,4 +1,4 @@
-import { ApiError } from "./api-client";
+import { ApiError } from "./api-error";
 
 export type AuthMethod = "phone" | "wechat";
 

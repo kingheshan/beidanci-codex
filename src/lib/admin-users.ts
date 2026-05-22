@@ -1,5 +1,5 @@
 import type { AuthMethod } from "./auth";
-import { getWordbook, listWordbooks, type WordbookId } from "./wordbooks";
+import { getWordbook, listWordbooks, type WordbookId } from "./wordbook-catalog";
 
 export type AdminUserStatus = "active" | "watch" | "frozen";
 export type AdminUserAction = "freeze" | "unfreeze" | "watch";

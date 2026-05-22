@@ -1,5 +1,5 @@
 import type { Word } from "./words";
-import { findAnyWord } from "./word-search";
+import { findClientWord } from "./client-wordbook-preview";
 import { REVIEW_FILTERS, REVIEW_STATE_META, REVIEW_STATS, type ReviewState } from "./learning-workflow-config";
 export { REVIEW_FILTERS, REVIEW_STATS };
 export type { ReviewState };
@@ -21,7 +21,7 @@ export const REVIEW_QUEUE: ReviewQueueItem[] = [
 ];
 
 export function getReviewWord(item: ReviewQueueItem): Word | undefined {
-  return findAnyWord(item.wordId);
+  return findClientWord(item.wordId);
 }
 
 export function stateLabel(state: ReviewState) {

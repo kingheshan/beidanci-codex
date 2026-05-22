@@ -1,5 +1,5 @@
 import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto";
-import { ApiError } from "./api-client";
+import { ApiError } from "./api-error";
 import type { AuthMethod, AuthSession, PhoneCodeIssueInput, PhoneCodeIssueResult, PhoneLoginInput, WechatLoginInput } from "./auth";
 import { validateChineseMobile } from "./auth";
 
