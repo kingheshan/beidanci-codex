@@ -15,6 +15,7 @@ import { ProductSidebar } from "@/components/product-navigation";
 import { Card, CTA, ProgressBar, ProgressRing, Skeleton, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
 import type { ApiClient } from "@/lib/api-client";
+import { trackReviewRecall } from "@/lib/analytics";
 import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { type MistakeDefaultStats } from "@/lib/learning-workflow-config";
 import { hydrateMistake, MISTAKE_FILTERS, modeLabel, type MistakeFilterId, type MistakeItem } from "@/lib/mistakes-data";
@@ -222,6 +223,7 @@ export function MistakesScreen({ apiClient }: MistakesScreenProps) {
     window.setTimeout(() => setToast(null), 1800);
   };
   const startMistakeSession = () => {
+    trackReviewRecall({ source: "mistake_notebook", count: rows.length });
     router.push(studyUrlFromMistakes(rows));
   };
   const exportPdf = () => {

@@ -13,6 +13,7 @@ import { MobileTabBar } from "@/components/mobile-tab-bar";
 import { ProductSidebar } from "@/components/product-navigation";
 import { CTA, Card, GemPill, ProgressBar, ProgressRing, Skeleton, StreakChip, Tag } from "@/components/ui";
 import type { ApiClient } from "@/lib/api-client";
+import { trackReviewRecall } from "@/lib/analytics";
 import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { DASHBOARD_DATE_LABEL } from "@/lib/dashboard-data";
 import { formatWorkflowTemplate, type ReviewStatCardId } from "@/lib/learning-workflow-config";
@@ -104,6 +105,7 @@ export function ReviewScreen({ apiClient }: { apiClient?: Pick<ApiClient, "getRe
   };
 
   const startReview = () => {
+    trackReviewRecall({ source: "review_queue", count: filtered.length });
     router.push(studyUrlFromQueue("review", filtered));
   };
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SubmitAnswerInput } from "./api-client";
+import { trackStudyCompleted } from "./analytics";
 import type { LastStudyResult, StudyResultItem } from "@/store/app-store";
 import { useAppStore } from "@/store/app-store";
 import type { StudyModeId } from "./study-data";
@@ -123,6 +124,7 @@ export function useStudySession({ mode, words, wordPool, submitAnswer }: StudySe
         completedAt: new Date().toISOString()
       };
       recordStudyResult(summary);
+      trackStudyCompleted(summary);
       setSessionPhase("done");
       return;
     }

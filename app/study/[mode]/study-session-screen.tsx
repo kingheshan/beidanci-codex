@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { CheckIcon, ChevronLeftIcon, SpeakerIcon, SparkleIcon, XIcon } from "@/components/icons";
 import { CTA, ChoiceButton, HeartPill, ProgressBar, Tag } from "@/components/ui";
 import type { ApiClient } from "@/lib/api-client";
+import { trackStudyStarted } from "@/lib/analytics";
 import { findClientWord, getClientWordbookWords } from "@/lib/client-wordbook-preview";
 import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { STUDY_MODES, type StudyModeId } from "@/lib/study-data";
@@ -524,6 +525,7 @@ export function StudySessionScreen({ mode, wordIds, sourceLabel, apiClient }: St
   const modeMeta = STUDY_MODES.find((item) => item.id === mode) ?? STUDY_MODES[0];
   const activeWordbookId = useAppStore((state) => state.onboarding.wordbookId);
   const [toast, setToast] = useState<string | null>(null);
+  const startTracked = useRef(false);
   const activeWordbookWords = useMemo(() => getClientWordbookWords(activeWordbookId), [activeWordbookId]);
   const queuedWords = useMemo(() => resolveWordIds(wordIds), [wordIds]);
   const words = useMemo(
@@ -534,6 +536,17 @@ export function StudySessionScreen({ mode, wordIds, sourceLabel, apiClient }: St
   const client = useMemo(() => apiClient ?? createFetchApiClient(), [apiClient]);
   const session = useStudySession({ mode, words, wordPool, submitAnswer: client.submitAnswer });
   const headerTitle = sourceLabel ?? modeMeta.title;
+
+  useEffect(() => {
+    if (startTracked.current || words.length === 0) return;
+    startTracked.current = true;
+    trackStudyStarted({
+      mode,
+      total: words.length,
+      source: sourceLabel ? "queue" : "mode_select",
+      wordbookId: activeWordbookId
+    });
+  }, [activeWordbookId, mode, sourceLabel, words.length]);
 
   useEffect(() => {
     if (session.phase === "done") {

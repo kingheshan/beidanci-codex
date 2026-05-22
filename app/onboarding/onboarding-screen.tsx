@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronLeftIcon, CheckIcon } from "@/components/icons";
 import { CTA } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
+import { trackOnboardingCompleted } from "@/lib/analytics";
 import { estimatePlanMinutes, type DailyWordsConfig } from "@/lib/learning-plan-config";
 import {
   formatOnboardingTemplate,
@@ -54,6 +55,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     }
 
     completeOnboarding({
+      goal,
+      grade,
+      interests,
+      dailyWords,
+      wordbookId: selectedWordbookId
+    });
+    trackOnboardingCompleted({
       goal,
       grade,
       interests,

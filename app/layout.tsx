@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { AnalyticsProvider } from "@/components/analytics-provider";
 import { AuthBoundary } from "./auth-boundary";
 import "./globals.css";
 
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh-CN" data-theme="purple">
       <body>
+        <AnalyticsProvider />
         <AuthBoundary>{children}</AuthBoundary>
       </body>
     </html>

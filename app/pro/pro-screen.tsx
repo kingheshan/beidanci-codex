@@ -7,6 +7,7 @@ import { ChevronLeftIcon, SparkleIcon } from "@/components/icons";
 import { CTA, GemPill, StreakChip, Tag } from "@/components/ui";
 import { Wordy } from "@/components/wordy";
 import type { ApiClient } from "@/lib/api-client";
+import { trackProCheckoutStarted, trackProConversion, trackProPaywallViewed, trackProPlanSelected } from "@/lib/analytics";
 import { createFetchApiClient } from "@/lib/fetch-api-client";
 import { formatExperienceTemplate, type ExperienceConfig } from "@/lib/experience-config";
 import { findProPlan, PRO_FEATURES, PRO_PLANS, type ProPlan, type ProPlanId } from "@/lib/pro-data";
@@ -181,6 +182,7 @@ export function ProScreen({ apiClient }: ProScreenProps = {}) {
   const [toast, setToast] = useState<string | null>(null);
   const [purchasing, setPurchasing] = useState(false);
   const routeTimer = useRef<number | null>(null);
+  const paywallTracked = useRef(false);
   const selectedPlan = useMemo(() => findProPlan(picked), [picked]);
   const client = useMemo(() => apiClient ?? createFetchApiClient(), [apiClient]);
   const { config: experienceConfig } = useExperienceConfig();
@@ -191,6 +193,12 @@ export function ProScreen({ apiClient }: ProScreenProps = {}) {
   }, []);
 
   useEffect(() => {
+    if (paywallTracked.current) return;
+    paywallTracked.current = true;
+    trackProPaywallViewed(subscription.isPro ? "profile_active_subscription" : "upgrade_entry");
+  }, [subscription.isPro]);
+
+  useEffect(() => {
     return () => {
       if (routeTimer.current) window.clearTimeout(routeTimer.current);
     };
@@ -199,6 +207,7 @@ export function ProScreen({ apiClient }: ProScreenProps = {}) {
   const completePurchase = async () => {
     if (purchasing) return;
     setPurchasing(true);
+    trackProCheckoutStarted(selectedPlan.id);
 
     try {
       const checkout = await client.createProCheckout({ planId: selectedPlan.id, channel: "wechat" });
@@ -208,6 +217,7 @@ export function ProScreen({ apiClient }: ProScreenProps = {}) {
       }
 
       activatePro(checkout.subscription.planId, checkout.subscription.startedAt, checkout.subscription.sourceOrderId);
+      trackProConversion({ planId: checkout.subscription.planId, sourceOrderId: checkout.subscription.sourceOrderId });
       setToast(formatExperienceTemplate(config.successToastTemplate, { planName: selectedPlan.name }));
       routeTimer.current = window.setTimeout(() => {
         router.push("/me");
@@ -217,6 +227,11 @@ export function ProScreen({ apiClient }: ProScreenProps = {}) {
     } finally {
       setPurchasing(false);
     }
+  };
+
+  const pickPlan = (planId: ProPlanId) => {
+    setPicked(planId);
+    trackProPlanSelected(planId);
   };
 
   return (
@@ -277,7 +292,7 @@ export function ProScreen({ apiClient }: ProScreenProps = {}) {
             </section>
           </div>
 
-          <PlanPanel picked={picked} selectedPlan={selectedPlan} config={config} loading={purchasing} onPick={setPicked} onPurchase={completePurchase} />
+          <PlanPanel picked={picked} selectedPlan={selectedPlan} config={config} loading={purchasing} onPick={pickPlan} onPurchase={completePurchase} />
         </div>
       </div>
 
