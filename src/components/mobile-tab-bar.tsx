@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProductNavIcon } from "@/components/product-navigation";
-import { isProductFeatureEnabled, type ProductMobileTabId } from "@/lib/product-config";
+import { getProductFeatureUnavailableCopy, isProductFeatureEnabled, type ProductMobileTabId } from "@/lib/product-config";
 import { useProductConfig } from "@/lib/use-remote-config";
 
 type MobileTabBarProps = {
@@ -48,7 +48,7 @@ export function MobileTabBar({ active, onUnavailable }: MobileTabBarProps) {
           <button
             type="button"
             key={item.id}
-            onClick={() => onUnavailable?.(item.label)}
+            onClick={() => onUnavailable?.(getProductFeatureUnavailableCopy(config, item.featureId))}
             className={className}
             style={style}
             aria-current={isActive ? "page" : undefined}

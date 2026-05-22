@@ -35,7 +35,7 @@ export const PROFILE_SUMMARY = {
 
 export const PROFILE_LINKS: ProfileLink[] = [
   { id: "mistakes", title: "错题本", subtitle: "5 个高频错词", icon: "📛", href: "/mistakes", color: "var(--c-danger)" },
-  { id: "camera", title: "拍照查词", subtitle: "OCR 圈词加入复习", icon: "📷", href: "/camera", color: "var(--c-mint)" },
+  { id: "camera", title: "拍照查词", subtitle: "敬请期待", icon: "📷", color: "var(--c-mint)" },
   { id: "settings", title: "学习计划设置", subtitle: "每日计划 · 提醒 · 偏好", icon: "⚙️", href: "/settings", color: "var(--c-primary)" }
 ];
 

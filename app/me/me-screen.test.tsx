@@ -41,7 +41,8 @@ describe("MeScreen", () => {
     expect(push).toHaveBeenCalledWith("/mistakes");
 
     await user.click(screen.getByRole("button", { name: /拍照查词/ }));
-    expect(push).toHaveBeenCalledWith("/camera");
+    expect(await screen.findAllByText("敬请期待")).toHaveLength(2);
+    expect(push).not.toHaveBeenCalledWith("/camera");
 
     await user.click(screen.getByRole("button", { name: /学习计划设置/ }));
     expect(push).toHaveBeenCalledWith("/settings");

@@ -27,8 +27,8 @@ export function StudyModeSelect() {
     router.push(href);
   };
 
-  const showUnavailable = (label: string) => {
-    setToast(`${label}会在后续 Web 阶段接入`);
+  const showUnavailable = (message: string) => {
+    setToast(message);
     window.setTimeout(() => setToast(null), 1800);
   };
 

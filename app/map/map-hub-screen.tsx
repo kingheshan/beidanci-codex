@@ -44,8 +44,8 @@ function resolveRows(items: MistakeItem[]) {
   return sortMistakesByRisk(items).map(hydrateMistake).filter((row): row is HydratedMistake => Boolean(row));
 }
 
-function showUnavailableToast(setToast: (message: string | null) => void, title: string) {
-  setToast(`${title}会在后续阶段接入`);
+function showUnavailableToast(setToast: (message: string | null) => void, message: string) {
+  setToast(message);
   window.setTimeout(() => setToast(null), 1800);
 }
 

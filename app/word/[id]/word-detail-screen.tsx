@@ -378,7 +378,7 @@ export function WordDetailScreen({ wordId, apiClient, initialWord, initialReview
   const wordDetail = wordQuery.data ?? initialDetail;
   const navigate = (href: string) => router.push(href);
   const showComingSoon = (title: string) => {
-    setToast(formatExperienceTemplate(config.unavailableTemplate, { label: title }));
+    setToast(title === "拍照查词" ? "敬请期待" : formatExperienceTemplate(config.unavailableTemplate, { label: title }));
     window.setTimeout(() => setToast(null), 1800);
   };
 
@@ -426,7 +426,7 @@ export function WordDetailScreen({ wordId, apiClient, initialWord, initialReview
     { label: "复习队列", href: "/review", icon: <BrainIcon size={18} />, active: true, badge: "14" },
     { label: "错题本", href: "/mistakes", icon: <HeartIcon size={18} />, badge: "5" },
     { label: "我的词书", href: "/dictionary", icon: <BookIcon size={18} /> },
-    { label: "拍照查词", href: "/camera", icon: <span aria-hidden>📷</span> }
+    { label: "拍照查词", icon: <span aria-hidden>📷</span> }
   ];
   const aiItems: SidebarItem[] = [
     { label: "AI 每日故事", href: "/story", icon: <SparkleIcon size={18} /> },

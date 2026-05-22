@@ -17,6 +17,7 @@ import { Wordy } from "@/components/wordy";
 import {
   getProductNavBadge,
   getProductNavSections,
+  getProductFeatureUnavailableCopy,
   isProductFeatureEnabled,
   type ProductFeatureId,
   type ProductConfig,
@@ -81,7 +82,7 @@ function SidebarButton({
       return;
     }
 
-    onUnavailable(label);
+    onUnavailable(getProductFeatureUnavailableCopy(config, item.id));
   };
 
   return (

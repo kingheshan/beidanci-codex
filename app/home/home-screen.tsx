@@ -21,8 +21,8 @@ export function HomeScreen() {
   const { config: studyConfig } = useStudyConfig();
   const [toast, setToast] = useState<string | null>(null);
 
-  const showComingSoon = (title: string) => {
-    setToast(`${title}会在后续阶段接入`);
+  const showComingSoon = (message: string) => {
+    setToast(message);
     window.setTimeout(() => setToast(null), 1800);
   };
 

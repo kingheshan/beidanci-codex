@@ -58,10 +58,14 @@ describe("HomeScreen", () => {
     expect(screen.getByRole("link", { name: /单词 PK/ })).toHaveAttribute("href", "/pk");
   });
 
-  it("renders the camera OCR quick tool as a real link", () => {
+  it("shows a coming-soon toast for the camera OCR quick tool", async () => {
+    const user = userEvent.setup();
     render(<HomeScreen />);
 
-    expect(screen.getByRole("link", { name: /拍照查词/ })).toHaveAttribute("href", "/camera");
+    await user.click(screen.getByRole("button", { name: /拍照查词/ }));
+
+    expect(await screen.findAllByText("敬请期待")).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: /拍照查词/ })).not.toBeInTheDocument();
   });
 
   it("renders the mistake memory nebula quick tool as a real link", () => {

@@ -14,7 +14,11 @@ describe("study config", () => {
   it("marks implemented quick tools with real routes", () => {
     const config = getStudyConfig();
 
-    expect(config.quickTools.filter((tool) => tool.enabled).map((tool) => tool.href)).toEqual(["/story", "/pk", "/camera", "/map"]);
+    expect(config.quickTools.filter((tool) => tool.enabled).map((tool) => tool.href)).toEqual(["/story", "/pk", "/map"]);
+    expect(config.quickTools.find((tool) => tool.id === "camera")).toMatchObject({
+      enabled: false,
+      unavailableCopy: "敬请期待"
+    });
     expect(config.quickTools.find((tool) => tool.id === "memory")).toMatchObject({
       enabled: true,
       href: "/map",

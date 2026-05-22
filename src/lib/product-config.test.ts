@@ -25,7 +25,8 @@ describe("product config", () => {
     expect(review && getProductNavBadge(config, review)).toBe("14");
     expect(mistakes && getProductNavBadge(config, mistakes)).toBe("5");
     expect(isProductFeatureEnabled(config, "study")).toBe(true);
-    expect(getProductFeatureUnavailableCopy(config, "camera")).toBe("拍照查词会在后续阶段接入");
+    expect(isProductFeatureEnabled(config, "camera")).toBe(false);
+    expect(getProductFeatureUnavailableCopy(config, "camera")).toBe("敬请期待");
   });
 
   it("filters sidebar sections for page-specific navigation", () => {

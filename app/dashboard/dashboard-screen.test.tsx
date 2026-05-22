@@ -55,8 +55,9 @@ describe("DashboardScreen", () => {
     await user.click(screen.getByRole("button", { name: "只看 AI 故事" }));
     expect(push).toHaveBeenCalledWith("/story");
 
-    await user.click(screen.getByRole("button", { name: /拍照查词 OCR/ }));
-    expect(push).toHaveBeenCalledWith("/camera");
+    await user.click(screen.getByRole("button", { name: /拍照查词 敬请期待/ }));
+    expect(await screen.findAllByText("敬请期待")).toHaveLength(2);
+    expect(push).not.toHaveBeenCalledWith("/camera");
 
     await user.click(screen.getByRole("button", { name: "我的词书" }));
     expect(push).toHaveBeenCalledWith("/dictionary");

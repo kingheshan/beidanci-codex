@@ -146,9 +146,18 @@ function StoryCard({ onNavigate }: { onNavigate: (href: string) => void }) {
   );
 }
 
-function LabButton({ lab, onNavigate }: { lab: DashboardLab; onNavigate: (href: string) => void }) {
+function LabButton({ lab, onNavigate, onUnavailable }: { lab: DashboardLab; onNavigate: (href: string) => void; onUnavailable: (message: string) => void }) {
+  const enabled = lab.enabled ?? true;
+
   return (
-    <button type="button" onClick={() => onNavigate(lab.href)} className="flex min-h-[86px] items-center gap-3 rounded-[16px] bg-white p-4 text-left shadow-card transition hover:-translate-y-0.5" aria-label={`${lab.title} ${lab.sub}`}>
+    <button
+      type="button"
+      onClick={() => (enabled ? onNavigate(lab.href) : onUnavailable(lab.unavailableCopy ?? "敬请期待"))}
+      className="flex min-h-[86px] items-center gap-3 rounded-[16px] bg-white p-4 text-left shadow-card transition hover:-translate-y-0.5"
+      style={{ opacity: enabled ? 1 : 0.72 }}
+      aria-label={`${lab.title} ${lab.sub}`}
+      aria-disabled={!enabled}
+    >
       <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] text-2xl" style={{ background: `color-mix(in srgb, ${lab.color} 15%, white)` }}>
         {lab.icon}
       </span>
@@ -190,7 +199,7 @@ export function DashboardScreen() {
   };
 
   const showUnavailable = (label: string) => {
-    setToast(`${label}会在后续 Web 阶段接入`);
+    setToast(label);
     window.setTimeout(() => setToast(null), 1800);
   };
 
@@ -219,7 +228,7 @@ export function DashboardScreen() {
               <h2 className="aibd-display mb-3 text-lg">AI 实验室</h2>
               <div className="grid gap-3 lg:grid-cols-3">
                 {DASHBOARD_LABS.map((lab) => (
-                  <LabButton key={lab.id} lab={lab} onNavigate={navigate} />
+                  <LabButton key={lab.id} lab={lab} onNavigate={navigate} onUnavailable={showUnavailable} />
                 ))}
               </div>
             </section>

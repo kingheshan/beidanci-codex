@@ -17,6 +17,8 @@ export type DashboardLab = {
   icon: string;
   color: string;
   href: string;
+  enabled?: boolean;
+  unavailableCopy?: string;
 };
 
 export const DASHBOARD_DATE_LABEL = "2026 · 5 · 19 · 周二";
@@ -31,5 +33,5 @@ export const DASHBOARD_STATS: DashboardStat[] = [
 export const DASHBOARD_LABS: DashboardLab[] = [
   { id: "pk", title: "单词 PK", sub: "AI 人机对战", icon: "⚔️", color: "var(--c-pink)", href: "/pk" },
   { id: "map", title: "记忆星云", sub: "错词关联图谱", icon: "🧠", color: "var(--c-primary)", href: "/word/w1" },
-  { id: "camera", title: "拍照查词", sub: "OCR + AI 圈词", icon: "📷", color: "var(--c-mint)", href: "/camera" }
+  { id: "camera", title: "拍照查词", sub: "敬请期待", icon: "📷", color: "var(--c-mint)", href: "/camera", enabled: false, unavailableCopy: "敬请期待" }
 ];

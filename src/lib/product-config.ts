@@ -140,7 +140,7 @@ export const DEFAULT_PRODUCT_CONFIG: ProductConfig = {
     review: makeFeature("review"),
     mistakes: makeFeature("mistakes"),
     dictionary: makeFeature("dictionary"),
-    camera: makeFeature("camera"),
+    camera: { ...makeFeature("camera", false), unavailableCopy: "敬请期待" },
     story: makeFeature("story"),
     pk: makeFeature("pk"),
     pro: makeFeature("pro"),

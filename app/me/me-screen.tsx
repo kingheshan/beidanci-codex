@@ -452,7 +452,7 @@ export function MeScreen({ apiClient }: MeScreenProps = {}) {
   };
 
   const showComingSoon = (title: string) => {
-    setToast(`${title}会在后续阶段接入`);
+    setToast(title === "拍照查词" ? "敬请期待" : `${title}会在后续阶段接入`);
     window.setTimeout(() => setToast(null), 1800);
   };
 

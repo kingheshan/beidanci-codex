@@ -260,25 +260,12 @@ test("Gate 12 word PK opens from home and completes a victory match", async ({ p
   await expect(page.getByText("+ 80 XP · + 30 宝石")).toBeVisible();
 });
 
-test("Gate 13 camera OCR scans a page and adds selected words to review", async ({ page }) => {
+test("Gate 13 camera OCR shows coming-soon notice from home", async ({ page }) => {
   await page.goto("/home", { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("link", { name: /拍照查词/ }).click({ force: true });
-  await expect(page).toHaveURL(/\/camera$/, { timeout: 10_000 });
-  await expect(page.getByText("AI · OCR 圈词")).toBeVisible();
-  await expect(page.getByText("对准课本，自动识别页面所有英文单词")).toBeVisible();
-
-  await page.getByRole("button", { name: "拍照识别" }).click();
-  await expect(page.getByText("AI 识别中...")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "识别结果" })).toBeVisible({ timeout: 2000 });
-  await expect(page.getByText("建议加入复习计划 · 已选 4")).toBeVisible();
-
-  await page.getByRole("button", { name: /perseverance/ }).click();
-  await expect(page.getByText("建议加入复习计划 · 已选 3")).toBeVisible();
-  await page.getByRole("button", { name: "加入复习计划（3 个）" }).click();
-
-  await expect(page.getByText("已添加 3 个词到复习计划")).toBeVisible();
-  await expect(page).toHaveURL(/\/review$/);
+  await page.getByRole("button", { name: /拍照查词/ }).click({ force: true });
+  await expect(page.getByText("敬请期待").last()).toBeVisible();
+  await expect(page).toHaveURL(/\/home$/);
 });
 
 test("Gate 14 PRO paywall opens from profile and activates a subscription", async ({ page }) => {
