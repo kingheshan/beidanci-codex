@@ -373,7 +373,7 @@ export const DEFAULT_EXPERIENCE_CONFIG: ExperienceConfig = {
     socialProof: "“升级 Pro 三个月，词汇量从 800 涨到 2500。AI 故事真的很会写。” — 北京 初三 子萱",
     discountTag: "当前优惠",
     planTitle: "选择订阅方案",
-    planBody: "P0 使用 mock 支付，后续可接真实支付和家长确认。",
+    planBody: "创建服务端订单后确认权益，演示环境自动支付，生产环境可接微信、支付宝或 Apple IAP。",
     heroRefundTag: "7 天无理由退款",
     heroTitle: "升级 PRO",
     heroSubtitle: "解锁全部 AI 能力 · 加速 3 倍背单词",

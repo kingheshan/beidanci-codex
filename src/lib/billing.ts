@@ -14,6 +14,7 @@ import {
 
 export type BillingRepository = {
   createOrder: (order: ProBillingOrder) => Promise<ProBillingOrder>;
+  listOrders: () => Promise<ProBillingOrder[]>;
   readSubscription: (userId: string) => Promise<ProSubscription | null>;
   writeSubscription: (userId: string, subscription: ProSubscription) => Promise<ProSubscription>;
   reset: () => Promise<void>;
@@ -52,6 +53,9 @@ export function createMemoryBillingRepository(initial: BillingStoreSnapshot = { 
       snapshot.orders = [order, ...snapshot.orders.filter((item) => item.id !== order.id)];
       return { ...order };
     },
+    async listOrders() {
+      return snapshot.orders.map((order) => ({ ...order }));
+    },
     async readSubscription(userId) {
       const subscription = snapshot.subscriptions.find((item) => item.userId === userId);
       return subscription ? stripUserId(subscription) : null;
@@ -78,6 +82,9 @@ export function createFileBillingRepository(filePath = DEFAULT_BILLING_STORE_PAT
         subscriptions: snapshot.subscriptions
       });
       return { ...order };
+    },
+    async listOrders() {
+      return (await readBillingSnapshot(filePath)).orders.map((order) => ({ ...order }));
     },
     async readSubscription(userId) {
       const snapshot = await readBillingSnapshot(filePath);
@@ -149,6 +156,10 @@ export async function readUserSubscription(userId: string, options: { repository
     expiresAt: null,
     sourceOrderId: null
   };
+}
+
+export async function readBillingOrders(options: { repository?: BillingRepository } = {}) {
+  return await (options.repository ?? getDefaultBillingRepository()).listOrders();
 }
 
 export async function resetBillingStoreForTests() {

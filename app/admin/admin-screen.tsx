@@ -217,6 +217,7 @@ function formatBillingPlan(plan: AdminBillingPayload["orders"][number]["plan"]) 
   const labels = {
     "pro-monthly": "PRO 月卡",
     "pro-yearly": "PRO 年卡",
+    "pro-lifetime": "PRO 终身会员",
     "family-yearly": "家庭年卡",
     coupon: "兑换码权益"
   } satisfies Record<AdminBillingPayload["orders"][number]["plan"], string>;
@@ -226,6 +227,7 @@ function formatBillingPlan(plan: AdminBillingPayload["orders"][number]["plan"]) 
 
 function formatBillingStatus(status: AdminBillingPayload["orders"][number]["status"]) {
   const labels = {
+    pending: "待支付",
     paid: "已支付",
     refund_requested: "退款申请",
     refunded: "已退款",
@@ -252,6 +254,7 @@ function formatBillingChannel(channel: AdminBillingPayload["orders"][number]["ch
     wechat: "微信支付",
     alipay: "支付宝",
     apple: "Apple IAP",
+    demo: "演示支付",
     coupon: "兑换码"
   } satisfies Record<AdminBillingPayload["orders"][number]["channel"], string>;
 

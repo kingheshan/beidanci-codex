@@ -7,6 +7,7 @@ import { getProductConfig } from "@/lib/product-config";
 import { recordAiUsageEvent, resetAiUsageEventsForTests } from "@/lib/ai-usage";
 import { JsonFileAdminRepository, resetAdminRepositoryForTests, setAdminRepositoryForTests } from "@/lib/admin-repository";
 import { resetAppConfigStoreForTests, setAppConfigStorePathForTests } from "@/lib/app-config-admin";
+import { createProCheckout, resetBillingStoreForTests } from "@/lib/billing";
 import { POST as postAdminAction } from "./actions/route";
 import { GET as getAdminAccounts } from "./accounts/route";
 import { GET as getAdminAppConfigs, POST as postAdminAppConfigs } from "./app-configs/route";
@@ -65,11 +66,13 @@ describe("admin REST API routes", () => {
     setAppConfigStorePathForTests(join(tempDir, "app-config-store.json"));
     await resetAdminAuditStore();
     resetAiUsageEventsForTests();
+    await resetBillingStoreForTests();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     resetAdminRepositoryForTests();
     resetAppConfigStoreForTests();
+    await resetBillingStoreForTests();
     for (const key of AUTH_ENV_KEYS) {
       const original = ORIGINAL_AUTH_ENV[key];
       if (original === undefined) {
@@ -622,14 +625,32 @@ describe("admin REST API routes", () => {
     const denied = await getAdminBilling(request("/api/v1/admin/billing", { headers: { "x-admin-role": "research" } }));
     expect(denied.status).toBe(403);
 
+    const checkout = await createProCheckout(
+      { planId: "lifetime", channel: "wechat" },
+      {
+        userId: "u-live-billing",
+        customerName: "真实购买用户",
+        now: new Date("2026-05-22T12:00:00.000Z")
+      }
+    );
+
     const allowed = await getAdminBilling(request("/api/v1/admin/billing", { headers: { "x-admin-role": "finance" } }));
-    const allowedBody = await readJson<{ summary: { refundRequestCount: number }; orders: Array<{ id: string; customerName: string; status: string }> }>(allowed);
+    const allowedBody = await readJson<{ summary: { refundRequestCount: number; activeSubscriptionCount: number }; orders: Array<{ id: string; customerName: string; plan: string; channel: string; status: string; entitlementStatus: string }> }>(allowed);
 
     expect(allowed.status).toBe(200);
     expect(allowedBody.summary.refundRequestCount).toBeGreaterThanOrEqual(1);
+    expect(allowedBody.summary.activeSubscriptionCount).toBeGreaterThanOrEqual(1);
     expect(allowedBody.orders).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: "billing-refund-ryan", customerName: "Ryan 家长", status: "refund_requested" })
+        expect.objectContaining({ id: "billing-refund-ryan", customerName: "Ryan 家长", status: "refund_requested" }),
+        expect.objectContaining({
+          id: checkout.order.id,
+          customerName: "真实购买用户",
+          plan: "pro-lifetime",
+          channel: "wechat",
+          status: "paid",
+          entitlementStatus: "active"
+        })
       ])
     );
 

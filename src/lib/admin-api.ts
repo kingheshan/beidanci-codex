@@ -80,6 +80,7 @@ import {
 } from "./admin-system-health";
 import {
   applyAdminBillingAction,
+  adminBillingOrderFromProBillingOrder,
   DEFAULT_ADMIN_BILLING_ORDERS,
   sortAdminBillingOrders,
   summarizeAdminBillingOrders,
@@ -87,6 +88,7 @@ import {
   type AdminBillingOrderRecord,
   type AdminBillingSummary
 } from "./admin-billing";
+import { readBillingOrders } from "./billing";
 import {
   applyAdminCurriculumAction,
   DEFAULT_ADMIN_CURRICULUM_POLICIES,
@@ -718,7 +720,10 @@ export async function getAdminBillingOrders(actor: AdminActor): Promise<AdminBil
   if (!(await canAccessPersistedAdminModule(actor, "billing"))) return null;
 
   const repository = getAdminRepository();
-  const orders = await ensureDefaultAdminBillingOrders(repository);
+  const orders = mergeAdminBillingOrders(
+    (await readBillingOrders()).map(adminBillingOrderFromProBillingOrder),
+    await ensureDefaultAdminBillingOrders(repository)
+  );
 
   return {
     actor,
@@ -726,6 +731,15 @@ export async function getAdminBillingOrders(actor: AdminActor): Promise<AdminBil
     orders,
     generatedAt: new Date().toISOString()
   };
+}
+
+function mergeAdminBillingOrders(primary: AdminBillingOrderRecord[], fallback: AdminBillingOrderRecord[]) {
+  const seen = new Set<string>();
+  return sortAdminBillingOrders([...primary, ...fallback].filter((order) => {
+    if (seen.has(order.id)) return false;
+    seen.add(order.id);
+    return true;
+  }));
 }
 
 export async function updateAdminBillingOrder(actor: AdminActor, orderId: string, action: AdminBillingAction): Promise<AdminBillingActionPayload | null> {
@@ -1482,6 +1496,7 @@ function formatAdminBillingPlanLabel(plan: AdminBillingOrderRecord["plan"]) {
   const labels: Record<AdminBillingOrderRecord["plan"], string> = {
     "pro-monthly": "PRO 月卡",
     "pro-yearly": "PRO 年卡",
+    "pro-lifetime": "PRO 终身会员",
     "family-yearly": "家庭年卡",
     coupon: "兑换码权益"
   };

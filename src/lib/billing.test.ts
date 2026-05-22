@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { createMemoryBillingRepository, createProCheckout, readUserSubscription, resetBillingStoreForTests } from "./billing";
+import { createMemoryBillingRepository, createProCheckout, readBillingOrders, readUserSubscription, resetBillingStoreForTests } from "./billing";
 import { ApiError } from "./api-client";
 
 describe("billing", () => {
@@ -35,6 +35,7 @@ describe("billing", () => {
       isPro: true,
       planId: "yearly"
     });
+    await expect(readBillingOrders({ repository })).resolves.toEqual([expect.objectContaining({ id: checkout.order.id, planId: "yearly" })]);
   });
 
   it("keeps production checkout behind provider configuration", async () => {

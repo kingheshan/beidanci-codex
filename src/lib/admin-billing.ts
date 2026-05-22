@@ -1,8 +1,9 @@
 import type { AdminRole } from "./admin-api";
+import type { BillingChannel, BillingOrderStatus, ProBillingOrder, ProPlanId } from "./pro-data";
 
-export type AdminBillingPlan = "pro-monthly" | "pro-yearly" | "family-yearly" | "coupon";
-export type AdminBillingChannel = "wechat" | "alipay" | "apple" | "coupon";
-export type AdminBillingStatus = "paid" | "refund_requested" | "refunded" | "failed" | "comped";
+export type AdminBillingPlan = "pro-monthly" | "pro-yearly" | "pro-lifetime" | "family-yearly" | "coupon";
+export type AdminBillingChannel = "wechat" | "alipay" | "apple" | "demo" | "coupon";
+export type AdminBillingStatus = "pending" | "paid" | "refund_requested" | "refunded" | "failed" | "comped";
 export type AdminBillingEntitlementStatus = "active" | "pending-review" | "revoked" | "expired";
 export type AdminBillingAction = "approve-refund";
 
@@ -135,6 +136,23 @@ export function summarizeAdminBillingOrders(orders: AdminBillingOrderRecord[]): 
   };
 }
 
+export function adminBillingOrderFromProBillingOrder(order: ProBillingOrder): AdminBillingOrderRecord {
+  return {
+    id: order.id,
+    userId: order.userId,
+    customerName: order.customerName,
+    plan: mapProBillingPlan(order.planId),
+    amountCny: order.amountCny,
+    channel: mapProBillingChannel(order.channel),
+    status: mapProBillingStatus(order.status),
+    entitlementStatus: mapProBillingEntitlementStatus(order.status),
+    refundReason: null,
+    couponCode: null,
+    updatedAt: order.paidAt ?? order.createdAt,
+    updatedBy: order.status === "paid" ? "billing" : "checkout"
+  };
+}
+
 export function applyAdminBillingAction(order: AdminBillingOrderRecord, action: AdminBillingAction, actorRole: AdminRole): AdminBillingOrderRecord {
   if (action !== "approve-refund") return order;
 
@@ -148,15 +166,15 @@ export function applyAdminBillingAction(order: AdminBillingOrderRecord, action: 
 }
 
 function isAdminBillingPlan(value: unknown): value is AdminBillingPlan {
-  return value === "pro-monthly" || value === "pro-yearly" || value === "family-yearly" || value === "coupon";
+  return value === "pro-monthly" || value === "pro-yearly" || value === "pro-lifetime" || value === "family-yearly" || value === "coupon";
 }
 
 function isAdminBillingChannel(value: unknown): value is AdminBillingChannel {
-  return value === "wechat" || value === "alipay" || value === "apple" || value === "coupon";
+  return value === "wechat" || value === "alipay" || value === "apple" || value === "demo" || value === "coupon";
 }
 
 function isAdminBillingStatus(value: unknown): value is AdminBillingStatus {
-  return value === "paid" || value === "refund_requested" || value === "refunded" || value === "failed" || value === "comped";
+  return value === "pending" || value === "paid" || value === "refund_requested" || value === "refunded" || value === "failed" || value === "comped";
 }
 
 function isAdminBillingEntitlementStatus(value: unknown): value is AdminBillingEntitlementStatus {
@@ -164,5 +182,25 @@ function isAdminBillingEntitlementStatus(value: unknown): value is AdminBillingE
 }
 
 function getBillingStatusRank(status: AdminBillingStatus) {
-  return ({ refund_requested: 0, paid: 1, comped: 2, failed: 3, refunded: 4 } satisfies Record<AdminBillingStatus, number>)[status];
+  return ({ refund_requested: 0, pending: 1, paid: 2, comped: 3, failed: 4, refunded: 5 } satisfies Record<AdminBillingStatus, number>)[status];
+}
+
+function mapProBillingPlan(planId: ProPlanId): AdminBillingPlan {
+  if (planId === "monthly") return "pro-monthly";
+  if (planId === "yearly") return "pro-yearly";
+  return "pro-lifetime";
+}
+
+function mapProBillingChannel(channel: BillingChannel): AdminBillingChannel {
+  return channel;
+}
+
+function mapProBillingStatus(status: BillingOrderStatus): AdminBillingStatus {
+  return status;
+}
+
+function mapProBillingEntitlementStatus(status: BillingOrderStatus): AdminBillingEntitlementStatus {
+  if (status === "paid") return "active";
+  if (status === "pending") return "pending-review";
+  return "revoked";
 }
