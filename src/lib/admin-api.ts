@@ -1295,10 +1295,12 @@ export async function resetAdminAuditStore() {
 
 async function ensureDefaultAdminPromptVersions(repository = getAdminRepository()) {
   const existing = await repository.listAdminPromptVersions();
-  if (existing.length > 0) return sortAdminPromptVersions(existing);
+  const existingIds = new Set(existing.map((prompt) => prompt.id));
 
   for (const prompt of DEFAULT_ADMIN_PROMPT_VERSIONS) {
-    await repository.upsertAdminPromptVersion(prompt);
+    if (!existingIds.has(prompt.id)) {
+      await repository.upsertAdminPromptVersion(prompt);
+    }
   }
 
   return sortAdminPromptVersions(await repository.listAdminPromptVersions());
